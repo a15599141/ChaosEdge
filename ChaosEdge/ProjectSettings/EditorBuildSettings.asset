@@ -33,6 +33,6 @@ EditorBuildSettings:
     path: Assets/Scenes/AIPlayerSetting(MutiPlayer).unity
     guid: 2a765d2b269c80945a16bf4af9df51e4
   - enabled: 1
-    path: Assets/Scenes/GameMainScene.unity
+    path: Assets/Scenes/MainScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}
