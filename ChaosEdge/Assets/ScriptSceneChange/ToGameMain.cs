@@ -13,7 +13,7 @@ public class ToGameMain : MonoBehaviour
 
     void OnClick()
     {
-        SceneManager.LoadScene("GameMainScene");
+        SceneManager.LoadScene("MainScene");
     }
 
     // Update is called once per frame

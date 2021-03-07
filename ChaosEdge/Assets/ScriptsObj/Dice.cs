@@ -6,17 +6,14 @@ using Mirror;
 public class Dice : MonoBehaviour
 {
     public int DiceFaceUpNum;
-    public bool isRotating;
-    GameObject Roll;
     void Start()
     {
-        Roll = GameObject.Find("Roll").gameObject;
+
     }
     // Update is called once per frame
     void Update()
     {
-        isRotating = Roll.GetComponent<Roll>().isRotating; 
-        if(!isRotating) GetNum(); // 如果色子不动,则获取其点数
+        GetNum(); // 如果色子不动,则获取其点数
     }
 
     void GetNum()

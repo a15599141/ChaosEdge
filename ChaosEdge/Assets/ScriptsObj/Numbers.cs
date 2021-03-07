@@ -16,7 +16,7 @@ public class Numbers : MonoBehaviour
         Num4 = GameObject.Find("Num4").gameObject;
         Num5 = GameObject.Find("Num5").gameObject;
         Num6 = GameObject.Find("Num6").gameObject;
-        DiceCopy = GameObject.Find("dice/Dice").gameObject;
+        DiceCopy = GameObject.Find("Dice").gameObject;
         setAllFalse();
     }
 
