@@ -5,15 +5,29 @@ using Mirror;
  
 public class Dice : MonoBehaviour
 {
+    Rigidbody rigDice;
     public int DiceFaceUpNum;
+    public bool diceIsRotating; // 记录色子是否在旋转
+    private Vector3 a;
     void Start()
     {
-
+         a = new Vector3(0.0f, 0.0f, 0.0f);
+        rigDice = this.transform.GetComponent<Rigidbody>();
+        diceIsRotating = false;
     }
+
+    void checkDiceRotation()
+    {
+        print(rigDice.velocity);
+        if (rigDice.velocity == a) diceIsRotating = false;
+        else diceIsRotating = true;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        GetNum(); // 如果色子不动,则获取其点数
+        checkDiceRotation();
+        if (!diceIsRotating) GetNum(); // 如果色子不动,则获取其点数
     }
 
     void GetNum()
@@ -28,7 +42,7 @@ public class Dice : MonoBehaviour
                 upFace = obj[i];
             }
         }
-        DiceFaceUpNum = int.Parse(upFace.name);//将朝上面 的名字 转化为int
+        DiceFaceUpNum = int.Parse(upFace.name);//将朝上面的名字 转化为int
         //Debug.Log("点数是： " + DiceFaceUpNum);
     }
 }

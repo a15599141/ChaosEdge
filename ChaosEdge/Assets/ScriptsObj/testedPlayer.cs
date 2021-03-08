@@ -25,13 +25,15 @@ public class testedPlayer : MonoBehaviour
         Planes = GameObject.Find("Planes").gameObject;
         Roll = GameObject.Find("Roll").gameObject;
         checktime = 0;
+        diceIsRotating = false;
         planeNum = 0;
         currentRound = 0;
         playerIsMoving = false;
+        timer = 4.0f;
         newPosition = new Vector3(0, 0, 0);
         lastPosition = transform.position;
     }
-    void checkMoving()
+    void checkMoving() // // 检测玩家是否移动
     {
         if (Time.time - checktime > 0.1)
         {
@@ -54,8 +56,8 @@ public class testedPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       checkMoving();
-       diceIsRotating = Roll.GetComponent<Roll>().diceIsRotating;
+       checkMoving(); // 检测玩家是否还在移动
+       diceIsRotating = Dice.GetComponent<Dice>().diceIsRotating; // 获取色子运动状态
        DiceFaceUpNum = Dice.GetComponent<Dice>().DiceFaceUpNum;  // 获取色子点数
        timer = Roll.GetComponent<Roll>().timer;
        if (!diceIsRotating && timer != 4.0f) // 如果色子停止旋转且不处于首回合开始前
@@ -63,8 +65,8 @@ public class testedPlayer : MonoBehaviour
             roundCount = Roll.GetComponent<Roll>().roundCount;
            if(currentRound!= roundCount)
            {
-                planeNum = planeNum + DiceFaceUpNum;
-                if(planeNum > 11) planeNum = planeNum - 12;
+                planeNum = planeNum + DiceFaceUpNum; 
+                if(planeNum > 11) planeNum = planeNum - 12; 
                 newPosition = Planes.transform.GetChild(planeNum).position; // 取得落点坐标
                 currentRound++;
            }
