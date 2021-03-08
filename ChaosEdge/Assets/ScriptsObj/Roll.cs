@@ -40,6 +40,7 @@ public class Roll : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        playerIsMoving = testedPlayer.GetComponent<testedPlayer>().playerIsMoving;
         if (!diceIsRotating && !playerIsMoving) GetComponent<Button>().interactable = true;
         playerIsMoving = testedPlayer.GetComponent<testedPlayer>().playerIsMoving;
         // dice auto rotate
@@ -49,7 +50,12 @@ public class Roll : MonoBehaviour
             Dice.transform.Rotate(new Vector3(Dice.transform.rotation.x + p_x, Dice.transform.rotation.y + p_y, Dice.transform.rotation.z + p_z));
             timer += 0.02f;
         }
-        else diceIsRotating = false;
-        
+    }
+
+    private void LateUpdate()
+    {
+        //dicevelocity = Dice.GetComponent<Rigidbody>().velocity;
+        if (timer >2.0f && Dice.GetComponent<Rigidbody>().velocity.Equals(new Vector3(0.0f, 0.0f, 0.0f)))
+            diceIsRotating = false;
     }
 }
