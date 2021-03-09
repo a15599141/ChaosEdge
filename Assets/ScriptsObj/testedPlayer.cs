@@ -31,30 +31,10 @@ public class testedPlayer : MonoBehaviour
         newPosition = new Vector3(0, 0, 0);
         lastPosition = transform.position;
     }
-    void checkMoving()
-    {
-        if (Time.time - checktime > 0.1)
-        {
-            checktime = Time.time;
-            //判断是否有移动
-            if ((transform.position - lastPosition).sqrMagnitude > 0.05f)
-            {
-                playerIsMoving = true;
-                //print("is moving");
-            }
-            else
-            {
-                playerIsMoving = false;
-                //print("stop");
-            }
-            lastPosition = transform.position;
-        }
-    }
 
     // Update is called once per frame
     void Update()
     {
-       checkMoving();
        diceIsRotating = Roll.GetComponent<Roll>().diceIsRotating;
        DiceFaceUpNum = Dice.GetComponent<Dice>().DiceFaceUpNum;  // 获取色子点数
        timer = Roll.GetComponent<Roll>().timer;
@@ -69,8 +49,15 @@ public class testedPlayer : MonoBehaviour
                 currentRound++;
            }
            transform.localPosition = Vector3.MoveTowards(transform.localPosition, newPosition, Time.deltaTime*10); // 每秒10米进行移动
+            //根据初始位置和目标的位置检查玩家是否在移动中
+            if (Vector3.Distance(transform.localPosition, newPosition) < 0.1f)
+            {
+                playerIsMoving = false;
+            }
+            else
+            {
+                playerIsMoving = true;
+            }
        }
-       
-
     }
 }
