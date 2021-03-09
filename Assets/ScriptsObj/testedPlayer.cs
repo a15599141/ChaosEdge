@@ -9,27 +9,23 @@ public class testedPlayer : MonoBehaviour
     GameObject Planes;
     GameObject Roll;
     public int DiceFaceUpNum;
-    public float checktime;
     public bool diceIsRotating;
-    public bool playerIsMoving;
-    public float timer;
-    public int planeNum;
-    public int currentRound;
+    public bool playerIsMoving; 
+    public float timer;  // 计时器,规定旋转时间
+    public int planeNum; // 地图格子标记号码
+    public int currentRound; // 当前回合数（掷色子前）
     public int roundCount;
-    Vector3 lastPosition;
-    Vector3 newPosition;
+    Vector3 newPosition; // 摇色子后下一个落点坐标
     // Start is called before the first frame update
     void Start()
     {
         Dice = GameObject.Find("Dice").gameObject;
         Planes = GameObject.Find("Planes").gameObject;
         Roll = GameObject.Find("Roll").gameObject;
-        checktime = 0;
         planeNum = 0;
         currentRound = 0;
         playerIsMoving = false;
         newPosition = new Vector3(0, 0, 0);
-        lastPosition = transform.position;
     }
 
     // Update is called once per frame
