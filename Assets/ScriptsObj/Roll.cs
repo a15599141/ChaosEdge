@@ -21,7 +21,7 @@ public class Roll : MonoBehaviour
         Dice = GameObject.Find("Dice").gameObject;
         testedPlayer = GameObject.Find("testedPlayer").gameObject;
     }
-    void OnClick()
+    void OnClick() // 点击摇色子按钮
     {
       //取XYZ的随机旋转值 
        p_x = Random.Range(1, 30);
