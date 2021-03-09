@@ -122,7 +122,7 @@ MonoBehaviour:
   m_MinSize: {x: 679, y: 492}
   m_MaxSize: {x: 14002, y: 14042}
   vertical: 0
-  controlID: 113
+  controlID: 93
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_MinSize: {x: 403, y: 492}
   m_MaxSize: {x: 10001, y: 14042}
   vertical: 1
-  controlID: 114
+  controlID: 94
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_MinSize: {x: 403, y: 221}
   m_MaxSize: {x: 8003, y: 4021}
   vertical: 0
-  controlID: 115
+  controlID: 95
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -398,7 +398,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 5cfbffff
+      m_ExpandedIDs: 12f6ffff22f6ffff32f6ffff42f6ffff14f7ffff24f7ffff52f7ffff62f7ffff72f7fffff8f7ffff4ef8ffffd4f8ffffeaf8ffff78f9ffff88f9ffffb8f9ffffc8f9ffff5afbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -576,21 +576,21 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/ScriptsObj
+    - Assets/Scenes
     m_Globs: []
   m_ViewMode: 1
   m_StartGridSize: 71
   m_LastFolders:
-  - Assets/ScriptsObj
+  - Assets/Scenes
   m_LastFoldersGridSize: 71
   m_LastProjectPath: D:\Unity3D\ChaosEdge\ChaosEdge
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 1}
-    m_SelectedIDs: aa410000
-    m_LastClickedID: 16810
-    m_ExpandedIDs: 0000000094410000964100009841000000ca9a3b
+    m_SelectedIDs: a2410000
+    m_LastClickedID: 16802
+    m_ExpandedIDs: 0000000090410000924100009441000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -618,7 +618,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: d4c7ffff
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000944100009641000098410000
+    m_ExpandedIDs: 00000000904100009241000094410000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
