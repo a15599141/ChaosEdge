@@ -12,7 +12,7 @@ public class openTradeStation : MonoBehaviour
         }
         else
         {
-            this.transform.localPosition = new Vector3(0, -650, 0);
+            this.transform.localPosition = new Vector3(-300, -650, 0);
         }
         stationStatus = !stationStatus;
     }
