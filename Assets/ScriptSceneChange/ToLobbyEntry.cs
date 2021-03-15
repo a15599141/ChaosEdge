@@ -1,22 +1,24 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class ToLobby : MonoBehaviour
+public class ToLobbyEntry : MonoBehaviour
 {
-    // Start is called before the first frame update
+
+    // Use this for initialization
     void Start()
     {
         this.GetComponent<Button>().onClick.AddListener(OnClick);
     }
+
     void OnClick()
     {
-        SceneManager.LoadScene("LobbyDemo");
+        SceneManager.LoadScene("LobbyEntryScene");
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
