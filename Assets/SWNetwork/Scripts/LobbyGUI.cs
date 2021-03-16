@@ -25,7 +25,7 @@ public class LobbyGUI : MonoBehaviour
     public InputField playerIdText;
     public InputField messageText;
     public GameObject messagePlayerPopup;
-
+    
     /// <summary>
     /// The current message row count.
     /// </summary>

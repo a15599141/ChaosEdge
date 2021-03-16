@@ -1,103 +1,83 @@
-﻿using UnityEngine;
-using SWNetwork; 
-using UnityEngine.SceneManagement;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+using SWNetwork;
 using UnityEngine.UI;
 
-/// <summary>
-/// Basic lobby matchmaking implementation.
-/// </summary>
 public class Lobby : MonoBehaviour
 {
-    /// <summary>
-    /// Button for checking into SocketWeaver services
-    /// </summary>
-    public Button registerButton;
+    public LobbyGUI GUI;
+    public Canvas canvas;
 
-    /// <summary>
-    /// Button for joining or creating room
-    /// </summary>
-    public Button playButton;
+    Dictionary<string, string> playersDict_; // Used to display players in different teams.
+    RoomCustomData roomData_; // Current room's custom data.
 
-    /// <summary>
-    /// Button for entering custom playerId
-    /// </summary>
-    public InputField customPlayerIdField;
+    int currentRoomPageIndex_ = 0;// Current page index of the room list. 
 
-
-    /// <summary>
-    /// Dropdown for selecting the game region
-    /// </summary>
-    public Dropdown gameRegionDrowDown;
+    public InputField customPlayerIdField; // Button for entering custom playerId
+    string playerName_; // Player entered name
+    public Text LobbyEntryTitle; // Game title in lobby entry
+    public Button EntryRegisterButton;// Button for checking into SocketWeaver services
+    public Button EnterLobbyButton;// Button for joining or creating room
+    public Dropdown gameRegionDrowDown;// Dropdown for selecting the game region
 
     void Start()
     {
-        // Add an event handler for the OnRoomReadyEvent
-        NetworkClient.Lobby.OnRoomReadyEvent += Lobby_OnRoomReadyEvent;
 
-        // Add an event handler for the OnFailedToStartRoomEvent
-        NetworkClient.Lobby.OnFailedToStartRoomEvent += Lobby_OnFailedToStartRoomEvent;
+        // Subscribe to Lobby events
+        NetworkClient.Lobby.OnNewPlayerJoinRoomEvent += Lobby_OnNewPlayerJoinRoomEvent;
+        NetworkClient.Lobby.OnPlayerLeaveRoomEvent += Lobby_OnPlayerLeaveRoomEvent;
+        NetworkClient.Lobby.OnRoomCustomDataChangeEvent += Lobby_OnRoomCustomDataChangeEvent;
 
-        // Add an event handler for the OnLobbyConnectedEvent
+        NetworkClient.Lobby.OnRoomMessageEvent += Lobby_OnRoomMessageEvent;
+        NetworkClient.Lobby.OnPlayerMessageEvent += Lobby_OnPlayerMessageEvent;
+
         NetworkClient.Lobby.OnLobbyConnectedEvent += Lobby_OnLobbyConncetedEvent;
 
-        // allow player to register
+        // allow player to register in Lobby Entry
         customPlayerIdField.gameObject.SetActive(true);
-        registerButton.gameObject.SetActive(true);
-        playButton.gameObject.SetActive(false);
+        EntryRegisterButton.gameObject.SetActive(true);
+        EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
+        canvas.GetComponent<CanvasGroup>().alpha = 0;
+        canvas.GetComponent<CanvasGroup>().interactable = false;
+        canvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
 
     void OnDestroy()
     {
-        // remove the handlers
-        if(NetworkClient.Lobby != null)
-        {
-            NetworkClient.Lobby.OnRoomReadyEvent -= Lobby_OnRoomReadyEvent;
-            NetworkClient.Lobby.OnFailedToStartRoomEvent -= Lobby_OnFailedToStartRoomEvent;
-            NetworkClient.Lobby.OnLobbyConnectedEvent -= Lobby_OnLobbyConncetedEvent;
-        }
+        // Unsubscrible to Lobby events
+        NetworkClient.Lobby.OnNewPlayerJoinRoomEvent -= Lobby_OnNewPlayerJoinRoomEvent;
+        NetworkClient.Lobby.OnPlayerLeaveRoomEvent -= Lobby_OnPlayerLeaveRoomEvent;
+        NetworkClient.Lobby.OnRoomCustomDataChangeEvent -= Lobby_OnRoomCustomDataChangeEvent;
+
+        NetworkClient.Lobby.OnRoomMessageEvent -= Lobby_OnRoomMessageEvent;
+        NetworkClient.Lobby.OnPlayerMessageEvent -= Lobby_OnPlayerMessageEvent;
+
+        NetworkClient.Lobby.OnLobbyConnectedEvent -= Lobby_OnLobbyConncetedEvent;
     }
 
-    /* Lobby events handlers */
-    void Lobby_OnRoomReadyEvent(SWRoomReadyEventData eventData)
-    {
-        Debug.Log("Room is ready: roomId= " + eventData.roomId);
-        // Room is ready to join and its game servers have been assigned.
-        ConnectToRoom();
-    }
-
-    void Lobby_OnFailedToStartRoomEvent(SWFailedToStartRoomEventData eventData)
-    {
-        Debug.Log("Failed to start room: " + eventData);
-    }
-
-    void Lobby_OnLobbyConncetedEvent()
-    {
-        Debug.Log("Lobby connected");
-        RegisterPlayer();
-    }
-
-    /* UI event handlers */
-    /// <summary>
-    /// Register button was clicked
-    /// </summary>
     public void Register()
     {
-        string customPlayerId = customPlayerIdField.text;
+        playerName_ = customPlayerIdField.text;
 
-        if (customPlayerId != null && customPlayerId.Length > 0)
+        if (playerName_ != null && playerName_.Length > 0)
         {
             // use the user entered playerId to check into SocketWeaver. Make sure the PlayerId is unique.
-            NetworkClient.Instance.CheckIn(customPlayerId,(bool ok, string error) =>
+            NetworkClient.Instance.CheckIn(playerName_, (bool ok, string error) =>
             {
                 if (!ok)
                 {
                     Debug.LogError("Check-in failed: " + error);
                     return;
                 }
-
                 UpdateGameRegionDropdownOptions();
 
+                EnterLobbyButton.gameObject.SetActive(true);
+                gameRegionDrowDown.gameObject.SetActive(true);
+                customPlayerIdField.gameObject.SetActive(false);
+                EntryRegisterButton.gameObject.SetActive(false);
             });
         }
         else
@@ -110,69 +90,19 @@ public class Lobby : MonoBehaviour
                     Debug.LogError("Check-in failed: " + error);
                     return;
                 }
-
                 UpdateGameRegionDropdownOptions();
+
+                EnterLobbyButton.gameObject.SetActive(true);
+                gameRegionDrowDown.gameObject.SetActive(true);
+                customPlayerIdField.gameObject.SetActive(false);
+                EntryRegisterButton.gameObject.SetActive(false);
             });
         }
     }
 
-    /// <summary>
-    /// Game region value changed
-    /// </summary>
-    public void GameRegionChanged(int value)
-    {
-        NodeRegion nodeRegion = NetworkClient.Instance.AvailableNodeRegions[value];
-        NetworkClient.Instance.NodeRegion = nodeRegion.name;
-
-        RegisterPlayer();
-    }
-
-    /// <summary>
-    /// Play button was clicked
-    /// </summary>
-    public void Play()
-    {
-        // Here we use the JoinOrCreateRoom method to get player into rooms quickly.
-        NetworkClient.Lobby.JoinOrCreateRoom(true, 2, 20, HandleJoinOrCreatedRoom);
-    }
-
-    /* Lobby helper methods*/
-    /// <summary>
-    /// Register the player to lobby
-    /// </summary>
-    void RegisterPlayer()
-    {
-        NetworkClient.Lobby.Register((successful, reply, error) =>
-        {
-            if (successful)
-            {
-                Debug.Log("Registered " + reply);
-
-                if (reply.started)
-                {
-                    // player is already in a room and the room has started.
-                    // We can connect to the room's game servers now.
-                    ConnectToRoom();
-                }
-                else
-                {
-                    // allow player to join or create room
-                    playButton.gameObject.SetActive(true);
-                    gameRegionDrowDown.gameObject.SetActive(true);
-                    customPlayerIdField.gameObject.SetActive(false);
-                    registerButton.gameObject.SetActive(false);
-                }
-            }
-            else
-            {
-                Debug.Log("Failed to register " + error);
-            }
-        });
-    }
-
     void UpdateGameRegionDropdownOptions()
     {
-        if(NetworkClient.Instance == null)
+        if (NetworkClient.Instance == null)
         {
             return;
         }
@@ -181,11 +111,11 @@ public class Lobby : MonoBehaviour
 
         int currentValue = 0;
 
-        for(int i = 0; i< NetworkClient.Instance.AvailableNodeRegions.Length; i++)
+        for (int i = 0; i < NetworkClient.Instance.AvailableNodeRegions.Length; i++)
         {
             NodeRegion nodeRegion = NetworkClient.Instance.AvailableNodeRegions[i];
 
-            if(nodeRegion.name.Equals(NetworkClient.Instance.NodeRegion))
+            if (nodeRegion.name.Equals(NetworkClient.Instance.NodeRegion))
             {
                 currentValue = i;
             }
@@ -199,78 +129,388 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// Callback method for NetworkClient.Lobby.JoinOrCreateRoom().
+    /// Game region value changed
     /// </summary>
-    /// <param name="successful">If set to <c>true</c> <paramref name="successful"/>, the player has joined or created a room.</param>
-    /// <param name="reply">Reply.</param>
-    /// <param name="error">Error.</param>
-    void HandleJoinOrCreatedRoom(bool successful, SWJoinRoomReply reply, SWLobbyError error)
+    public void GameRegionChanged(int value)
     {
-        if (successful)
-        {
-            Debug.Log("Joined or created room " + reply);
-
-            // the player has joined a room which has already started.
-            if (reply.started)
-            {
-                ConnectToRoom();
-            }
-            else if (NetworkClient.Lobby.IsOwner)
-            {
-                // the player did not find a room to join
-                // the player created a new room and became the room owner.
-                StartRoom();
-            }
-        }
-        else
-        {
-            Debug.Log("Failed to join or create room " + error);
-        }
+        NodeRegion nodeRegion = NetworkClient.Instance.AvailableNodeRegions[value];
+        NetworkClient.Instance.NodeRegion = nodeRegion.name;
     }
 
-    /// <summary>
-    /// Start local player's current room. Lobby server will ask SocketWeaver to assign suitable game servers for the room.
-    /// </summary>
-    void StartRoom()
+    public void EnterLobby()
     {
-        NetworkClient.Lobby.StartRoom((okay, error) =>
+        EnterLobbyButton.gameObject.SetActive(false);
+        gameRegionDrowDown.gameObject.SetActive(false);
+        LobbyEntryTitle.gameObject.SetActive(false);
+        canvas.GetComponent<CanvasGroup>().alpha = 1;
+        canvas.GetComponent<CanvasGroup>().interactable = true;
+        canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
+    }
+
+    public void RegisterPlayer()
+    {
+        GUI.ShowRegisterPlayerPopup((bool ok, string playerName) =>
         {
-            if (okay)
+            if (ok)
             {
-                // Lobby server has sent request to SocketWeaver. The request is being processed.
-                // If socketweaver finds suitable server, Lobby server will invoke the OnRoomReadyEvent.
-                // If socketweaver cannot find suitable server, Lobby server will invoke the OnFailedToStartRoomEvent.
-                Debug.Log("Started room");
+                // store the playerName
+                // playerName also used to register local player to the lobby server
+                playerName_ = playerName;
+                NetworkClient.Instance.CheckIn(playerName, (bool successful, string error) =>
+                {
+                    if (!successful)
+                    {
+                        Debug.LogError(error);
+                    }
+                });
+            }
+        });
+    }
+    public void GetPlayersInCurrentRoom()
+    {
+        NetworkClient.Lobby.GetPlayersInRoom((successful, reply, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Got players " + reply);
+
+                // store the playerIds and player names in a dictionary.
+                // The dictionary is later used to populate the player list.
+                playersDict_ = new Dictionary<string, string>();
+                foreach (SWPlayer player in reply.players)
+                {
+                    playersDict_[player.id] = player.GetCustomDataString();
+                }
+
+                // fetch the room custom data.
+                GetRoomCustomData();
             }
             else
             {
-                Debug.Log("Failed to start room " + error);
+                Debug.Log("Failed to get players " + error);
             }
         });
     }
 
-    /// <summary>
-    /// Connect to the game servers of the room.
-    /// </summary>
-    void ConnectToRoom()
+    public void GetRoomCustomData()
     {
-        NetworkClient.Instance.ConnectToRoom(HandleConnectedToRoom);
+        NetworkClient.Lobby.GetRoomCustomData((successful, reply, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Got room custom data " + reply);
+
+                // Deserialize the room custom data.
+                roomData_ = reply.GetCustomData<RoomCustomData>();
+                if (roomData_ != null)
+                {
+                    RefreshPlayerList();
+                }
+            }
+            else
+            {
+                Debug.Log("Failed to get room custom data " + error);
+            }
+        });
     }
 
-    /// <summary>
-    /// Callback method NetworkClient.Instance.ConnectToRoom();
-    /// </summary>
-    /// <param name="connected">If set to <c>true</c>, the client has connected to the game servers successfully.</param>
-    void HandleConnectedToRoom(bool connected)
+    public void CreateNewRoom()
     {
-        if (connected)
+        GUI.ShowNewGamePopup((bool ok, string gameName) =>
         {
-            Debug.Log("Connected to room");
-            SceneManager.LoadScene(1);
-        }
-        else
+            if (ok)
+            {
+                roomData_ = new RoomCustomData();
+                roomData_.name = gameName;
+                roomData_.team1 = new TeamCustomData();
+                roomData_.team2 = new TeamCustomData();
+                roomData_.team1.players.Add(NetworkClient.Lobby.PlayerId);
+
+                // use the serializable roomData_ object as room's custom data.
+                NetworkClient.Lobby.CreateRoom(roomData_, true, 4, (successful, reply, error) =>
+                {
+                    if (successful)
+                    {
+                        Debug.Log("Room created " + reply);
+                        // refresh the room list
+                        GetRooms();
+
+                        // refresh the player list
+                        GetPlayersInCurrentRoom();
+                    }
+                    else
+                    {
+                        Debug.Log("Failed to create room " + error);
+                    }
+                });
+            }
+        });
+    }
+
+    public void SendRoomMessage(string message)
+    {
+        Debug.Log("Send room message " + message);
+        NetworkClient.Lobby.MessageRoom(message, (bool successful, SWLobbyError error) =>
         {
-            Debug.Log("Failed to connect to room");
+            if (successful)
+            {
+                Debug.Log("Sent room message");
+                string msg = "Sent to room: " + message;
+                GUI.AddRowForMessage(msg, null, null);
+            }
+            else
+            {
+                Debug.Log("Failed to send room messagem " + error);
+            }
+        });
+    }
+
+    public void OnRoomSelected(string roomId)
+    {
+        Debug.Log("OnRoomSelected: " + roomId);
+        // Join the selected room
+        NetworkClient.Lobby.JoinRoom(roomId, (successful, reply, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Joined room " + reply);
+                // refresh the player list
+                GetPlayersInCurrentRoom();
+            }
+            else
+            {
+                Debug.Log("Failed to Join room " + error);
+            }
+        });
+    }
+
+    public void OnPlayerSelected(string playerId)
+    {
+        Debug.Log("OnPlayerSelected: " + playerId);
+
+        // demonstrate player message API
+        GUI.ShowMessagePlayerPopup(playerId, (bool ok, string targetPlayerId, string message) =>
+        {
+            if (ok)
+            {
+                Debug.Log("Send player message " + "playerId= " + targetPlayerId + " message= " + message);
+                NetworkClient.Lobby.MessagePlayer(playerId, message, (bool successful, SWLobbyError error) =>
+                {
+                    if (successful)
+                    {
+                        Debug.Log("Sent player message");
+                        string msg = "Sent to " + targetPlayerId + ": " + message;
+                        GUI.AddRowForMessage(msg, null, null);
+                    }
+                    else
+                    {
+                        Debug.Log("Failed to send player messagem " + error);
+                    }
+                });
+            }
+        });
+    }
+
+    public void GetRooms()
+    {
+        // Get the rooms for the current page.
+        NetworkClient.Lobby.GetRooms(currentRoomPageIndex_, 6, (successful, reply, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Got rooms " + reply);
+
+                // Remove rooms in the rooms list
+                GUI.ClearRoomList();
+
+                foreach (SWRoom room in reply.rooms)
+                {
+                    Debug.Log(room);
+                    // Deserialize the room custom data.
+                    RoomCustomData rData = room.GetCustomData<RoomCustomData>();
+                    if (rData != null)
+                    {
+                        // Add rooms to the rooms list.
+                        GUI.AddRowForRoom(rData.name, room.id, OnRoomSelected);
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("Failed to get rooms " + error);
+            }
+        });
+    }
+
+    public void NextPage()
+    {
+        currentRoomPageIndex_++;
+        GetRooms();
+    }
+
+    public void PreviousPage()
+    {
+        currentRoomPageIndex_--;
+        GetRooms();
+    }
+
+    public void LeaveRoom()
+    {
+        NetworkClient.Lobby.LeaveRoom((successful, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Left room");
+                GUI.ClearPlayerList();
+                GetRooms();
+            }
+            else
+            {
+                Debug.Log("Failed to leave room " + error);
+            }
+        });
+    }
+
+    void RefreshPlayerList()
+    {
+        // Use the room custom data, and the playerId and player Name dictionary to populate the player lsit
+        if (playersDict_ != null)
+        {
+            GUI.ClearPlayerList();
+            GUI.AddRowForTeam("Team 1");
+            foreach (string pId in roomData_.team1.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+
+            GUI.AddRowForTeam("Team 2");
+            foreach (string pId in roomData_.team2.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
         }
     }
+
+    // lobby delegate events
+    void Lobby_OnLobbyConncetedEvent()
+    {
+        Debug.Log("Lobby_OnLobbyConncetedEvent");
+        // Register the player using the entered player name.
+        NetworkClient.Lobby.Register(playerName_, (successful, reply, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Lobby registered " + reply);
+                if (reply.started)
+                {
+                    // Player is in a room and the room has started.
+                    // Call NetworkClient.Instance.ConnectToRoom to connect to the game servers of the room.
+                }
+                else if (reply.roomId != null)
+                {
+                    // Player is in a room.
+                    GetRooms();
+                    GetPlayersInCurrentRoom();
+                }
+                else
+                {
+                    // Player is not in a room.
+                    GetRooms();
+                }
+            }
+            else
+            {
+                Debug.Log("Lobby failed to register " + error);
+            }
+        });
+    }
+
+    void Lobby_OnNewPlayerJoinRoomEvent(SWJoinRoomEventData eventData)
+    {
+        Debug.Log("Player joined room");
+        Debug.Log(eventData);
+
+        // Store the new playerId and player name pair
+        playersDict_[eventData.newPlayerId] = eventData.GetString();
+
+        if (NetworkClient.Lobby.IsOwner)
+        {
+            // Find the smaller team and assign the new player to it.
+            if (roomData_.team1.players.Count < roomData_.team2.players.Count)
+            {
+                roomData_.team1.players.Add(eventData.newPlayerId);
+            }
+            else
+            {
+                roomData_.team2.players.Add(eventData.newPlayerId);
+            }
+
+            // Update the room custom data
+            NetworkClient.Lobby.ChangeRoomCustomData(roomData_, (bool successful, SWLobbyError error) =>
+            {
+                if (successful)
+                {
+                    Debug.Log("ChangeRoomCustomData successful");
+                    RefreshPlayerList();
+                }
+                else
+                {
+                    Debug.Log("ChangeRoomCustomData failed: " + error);
+                }
+            });
+        }
+    }
+
+    void Lobby_OnPlayerLeaveRoomEvent(SWLeaveRoomEventData eventData)
+    {
+        Debug.Log("Player left room: " + eventData);
+
+        if (NetworkClient.Lobby.IsOwner)
+        {
+            // Remove the players from both team.
+            roomData_.team2.players.RemoveAll(eventData.leavePlayerIds.Contains);
+            roomData_.team1.players.RemoveAll(eventData.leavePlayerIds.Contains);
+
+            // Update the room custom data
+            NetworkClient.Lobby.ChangeRoomCustomData(roomData_, (bool successful, SWLobbyError error) =>
+            {
+                if (successful)
+                {
+                    Debug.Log("ChangeRoomCustomData successful");
+                    RefreshPlayerList();
+                }
+                else
+                {
+                    Debug.Log("ChangeRoomCustomData failed: " + error);
+                }
+            });
+        }
+    }
+
+    void Lobby_OnRoomCustomDataChangeEvent(SWRoomCustomDataChangeEventData eventData)
+    {
+        Debug.Log("Room custom data changed: " + eventData);
+
+        SWRoom room = NetworkClient.Lobby.RoomData;
+        roomData_ = room.GetCustomData<RoomCustomData>();
+
+        // Room custom data changed, refresh the player list.
+        RefreshPlayerList();
+    }
+
+    void Lobby_OnRoomMessageEvent(SWMessageRoomEventData eventData)
+    {
+        string msg = "Room message: " + eventData.data;
+        GUI.AddRowForMessage(msg, null, null);
+    }
+
+    void Lobby_OnPlayerMessageEvent(SWMessagePlayerEventData eventData)
+    {
+        string msg = eventData.playerId + ": " + eventData.data;
+        GUI.AddRowForMessage(msg, null, null);
+    }
+
+
 }

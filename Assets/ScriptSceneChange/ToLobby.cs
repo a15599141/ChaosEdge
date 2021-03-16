@@ -11,7 +11,7 @@ public class ToLobby : MonoBehaviour
     }
     void OnClick()
     {
-        SceneManager.LoadScene("LobbyDemo");
+        SceneManager.LoadScene("LobbyScene");
     }
 
     // Update is called once per frame
