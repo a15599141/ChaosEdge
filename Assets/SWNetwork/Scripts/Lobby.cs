@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
 using SWNetwork;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class Lobby : MonoBehaviour
 {
     public LobbyGUI GUI;
@@ -17,6 +16,7 @@ public class Lobby : MonoBehaviour
 
     public InputField customPlayerIdField; // Button for entering custom playerId
     string playerName_; // Player entered name
+    public Text playerNameText; // player name display in lobby
     public Text LobbyEntryTitle; // Game title in lobby entry
     public Button EntryRegisterButton;// Button for checking into SocketWeaver services
     public Button EnterLobbyButton;// Button for joining or creating room
@@ -41,8 +41,8 @@ public class Lobby : MonoBehaviour
         EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
         canvas.GetComponent<CanvasGroup>().alpha = 0;
-        canvas.GetComponent<CanvasGroup>().interactable = false;
-        canvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        //canvas.GetComponent<CanvasGroup>().interactable = false;
+        //canvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
 
     void OnDestroy()
@@ -72,6 +72,7 @@ public class Lobby : MonoBehaviour
                     Debug.LogError("Check-in failed: " + error);
                     return;
                 }
+                playerNameText.text = playerName_;
                 UpdateGameRegionDropdownOptions();
 
                 EnterLobbyButton.gameObject.SetActive(true);
@@ -143,8 +144,9 @@ public class Lobby : MonoBehaviour
         gameRegionDrowDown.gameObject.SetActive(false);
         LobbyEntryTitle.gameObject.SetActive(false);
         canvas.GetComponent<CanvasGroup>().alpha = 1;
-        canvas.GetComponent<CanvasGroup>().interactable = true;
-        canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        GetRooms();
+        //canvas.GetComponent<CanvasGroup>().interactable = true;
+        //canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
     public void RegisterPlayer()
@@ -162,6 +164,7 @@ public class Lobby : MonoBehaviour
                     {
                         Debug.LogError(error);
                     }
+                    else playerNameText.text = playerName_;
                 });
             }
         });
@@ -216,16 +219,17 @@ public class Lobby : MonoBehaviour
 
     public void CreateNewRoom()
     {
-        GUI.ShowNewGamePopup((bool ok, string gameName) =>
+        GUI.ShowNewGamePopup((bool ok, string roomName) =>
         {
             if (ok)
             {
                 roomData_ = new RoomCustomData();
-                roomData_.name = gameName;
+                roomData_.name = roomName;
                 roomData_.team1 = new TeamCustomData();
                 roomData_.team2 = new TeamCustomData();
+                roomData_.team3 = new TeamCustomData();
+                roomData_.team4 = new TeamCustomData();
                 roomData_.team1.players.Add(NetworkClient.Lobby.PlayerId);
-
                 // use the serializable roomData_ object as room's custom data.
                 NetworkClient.Lobby.CreateRoom(roomData_, true, 4, (successful, reply, error) =>
                 {
@@ -234,12 +238,12 @@ public class Lobby : MonoBehaviour
                         Debug.Log("Room created " + reply);
                         // refresh the room list
                         GetRooms();
-
                         // refresh the player list
                         GetPlayersInCurrentRoom();
                     }
                     else
                     {
+                        GUI.ShowCreateRoomErrorPopup();
                         Debug.Log("Failed to create room " + error);
                     }
                 });
@@ -366,6 +370,7 @@ public class Lobby : MonoBehaviour
             }
             else
             {
+                GUI.ShowLeaveRoomErrorPopup();
                 Debug.Log("Failed to leave room " + error);
             }
         });
@@ -377,15 +382,29 @@ public class Lobby : MonoBehaviour
         if (playersDict_ != null)
         {
             GUI.ClearPlayerList();
-            GUI.AddRowForTeam("Team 1");
+            GUI.AddRowForTeam("Player 1");
             foreach (string pId in roomData_.team1.players)
             {
                 String playerName = playersDict_[pId];
                 GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
             }
 
-            GUI.AddRowForTeam("Team 2");
+            GUI.AddRowForTeam("Player 2");
             foreach (string pId in roomData_.team2.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+
+            GUI.AddRowForTeam("Player 3");
+            foreach (string pId in roomData_.team3.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+
+            GUI.AddRowForTeam("Player 4");
+            foreach (string pId in roomData_.team4.players)
             {
                 String playerName = playersDict_[pId];
                 GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
@@ -442,9 +461,17 @@ public class Lobby : MonoBehaviour
             {
                 roomData_.team1.players.Add(eventData.newPlayerId);
             }
-            else
+            else if (roomData_.team2.players.Count < roomData_.team3.players.Count)
             {
                 roomData_.team2.players.Add(eventData.newPlayerId);
+            }
+            else if (roomData_.team3.players.Count < roomData_.team4.players.Count)
+            {
+                roomData_.team3.players.Add(eventData.newPlayerId);
+            }
+            else 
+            {
+                roomData_.team4.players.Add(eventData.newPlayerId);
             }
 
             // Update the room custom data
@@ -512,5 +539,17 @@ public class Lobby : MonoBehaviour
         GUI.AddRowForMessage(msg, null, null);
     }
 
-
+    public void StartRoom()
+    {
+        if (NetworkClient.Lobby.IsOwner)
+        {
+            Debug.Log("Connected to room");
+            SceneManager.LoadScene(5);
+        }
+        else
+        {
+            GUI.ShowStartRoomPopup();
+            Debug.Log("Failed to connect to room");
+        }
+    }
 }

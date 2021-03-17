@@ -25,7 +25,11 @@ public class LobbyGUI : MonoBehaviour
     public InputField playerIdText;
     public InputField messageText;
     public GameObject messagePlayerPopup;
-    
+
+    public GameObject CreateRoomErrorPopup;
+    public GameObject LeaveRoomErrorPopup;
+    public GameObject StartRoomPopup;
+
     /// <summary>
     /// The current message row count.
     /// </summary>
@@ -123,6 +127,21 @@ public class LobbyGUI : MonoBehaviour
         playerIdText.text = targetPlayer;
         messageText.text = "";
         messagePlayerPopupCloseCallback = callback;
+    }
+
+    public void ShowCreateRoomErrorPopup()
+    {
+        CreateRoomErrorPopup.SetActive(true);
+    }
+
+    public void ShowLeaveRoomErrorPopup()
+    {
+        LeaveRoomErrorPopup.SetActive(true);
+    }
+
+    public void ShowStartRoomPopup()
+    {
+        StartRoomPopup.SetActive(true);
     }
 
     // Helper methods
@@ -227,5 +246,18 @@ public class LobbyGUI : MonoBehaviour
         {
             messagePlayerPopupCloseCallback(false, null, null);
         }
+    }
+
+    public void HandleCreateRoomErrorOk()
+    {
+        CreateRoomErrorPopup.SetActive(false);
+    }
+    public void HandleLeaveRoomErrorOk()
+    {
+        LeaveRoomErrorPopup.SetActive(false);
+    }
+    public void HandleStartRoomErrorOk()
+    {
+        StartRoomPopup.SetActive(false);
     }
 }
