@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using SWNetwork;
 
 public class LobbyGUI : MonoBehaviour
 {
@@ -185,6 +186,19 @@ public class LobbyGUI : MonoBehaviour
 
     public void HandleBackToMenuOk()
     {
+        NetworkClient.Lobby.LeaveRoom((successful, error) =>
+        {
+            if (successful)
+            {
+                Debug.Log("Left room");
+                ClearPlayerList();
+                ClearRoomMessage();
+            }
+            else
+            {
+                Debug.Log("Failed to leave room " + error);
+            }
+        });
         SceneManager.LoadScene("HomeScene");
     }
     public void HandleBackToMenuCancel()

@@ -23,7 +23,6 @@ public class Lobby : MonoBehaviour
     public Text EntryRegisterText;// text of Register Button
     public Button EnterLobbyButton;// Button for joining or creating room
     public Dropdown gameRegionDrowDown;// Dropdown for selecting the game region
-
     void Start()
     {
         // Subscribe to Lobby events
@@ -46,7 +45,6 @@ public class Lobby : MonoBehaviour
         //canvas.GetComponent<CanvasGroup>().interactable = false;
         //canvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
-
     void OnDestroy()
     {
         // Unsubscrible to Lobby events
@@ -60,6 +58,7 @@ public class Lobby : MonoBehaviour
         NetworkClient.Lobby.OnLobbyConnectedEvent -= Lobby_OnLobbyConncetedEvent;
     }
 
+    // Lobby entry
     public void RegisterInLobbyEntry()
     {
         playerName_ = customPlayerIdField.text;
@@ -134,6 +133,7 @@ public class Lobby : MonoBehaviour
         //canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
+    // In lobby
     public void RegisterInLobby()
     {
         GUI.ShowRegisterPlayerPopup((bool ok, string playerName) =>
@@ -153,6 +153,27 @@ public class Lobby : MonoBehaviour
                 });
             }
         });
+    }
+    public void OnRoomSelected(string roomId)
+    {
+        Debug.Log("OnRoomSelected: " + roomId);
+        // Join the selected room
+        
+            NetworkClient.Lobby.JoinRoom(roomId, (successful, reply, error) =>
+            {
+                if (successful)
+                {
+                    Debug.Log("Joined room " + reply);
+                    // refresh the player list
+                    GetPlayersInCurrentRoom();
+                }
+                else
+                {
+                    GUI.ShowJoinRoomErrorPopup();
+                    Debug.Log("Failed to Join room " + error);
+                }
+            });
+
     }
     public void GetPlayersInCurrentRoom()
     {
@@ -186,7 +207,6 @@ public class Lobby : MonoBehaviour
             if (successful)
             {
                 Debug.Log("Got room custom data " + reply);
-
                 // Deserialize the room custom data.
                 roomData_ = reply.GetCustomData<RoomCustomData>();
                 if (roomData_ != null)
@@ -252,24 +272,7 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-    public void OnRoomSelected(string roomId)
-    {
-        Debug.Log("OnRoomSelected: " + roomId);
-        // Join the selected room
-        NetworkClient.Lobby.JoinRoom(roomId, (successful, reply, error) =>
-        {
-            if (successful)
-            {
-                Debug.Log("Joined room " + reply);
-                // refresh the player list
-                GetPlayersInCurrentRoom();
-            }
-            else
-            {
-                Debug.Log("Failed to Join room " + error);
-            }
-        });
-    }
+    
     public void OnPlayerSelected(string playerId)
     {
         Debug.Log("OnPlayerSelected: " + playerId);
@@ -295,6 +298,41 @@ public class Lobby : MonoBehaviour
                 });
             }
         });
+    }
+    void RefreshPlayerList()
+    {
+        // Use the room custom data, and the playerId and player Name dictionary to populate the player lsit
+        if (playersDict_ != null)
+        {
+            GUI.ClearPlayerList();
+            GUI.AddRowForTeam("Player 1");
+            foreach (string pId in roomData_.team1.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+
+            GUI.AddRowForTeam("Player 2");
+            foreach (string pId in roomData_.team2.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+
+            GUI.AddRowForTeam("Player 3");
+            foreach (string pId in roomData_.team3.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+
+            GUI.AddRowForTeam("Player 4");
+            foreach (string pId in roomData_.team4.players)
+            {
+                String playerName = playersDict_[pId];
+                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
+            }
+        }
     }
     public void GetRooms()
     {
@@ -367,41 +405,7 @@ public class Lobby : MonoBehaviour
             Debug.Log("Failed to connect to room");
         }
     }
-    void RefreshPlayerList()
-    {
-        // Use the room custom data, and the playerId and player Name dictionary to populate the player lsit
-        if (playersDict_ != null)
-        {
-            GUI.ClearPlayerList();
-            GUI.AddRowForTeam("Player 1");
-            foreach (string pId in roomData_.team1.players)
-            {
-                String playerName = playersDict_[pId];
-                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
-            }
 
-            GUI.AddRowForTeam("Player 2");
-            foreach (string pId in roomData_.team2.players)
-            {
-                String playerName = playersDict_[pId];
-                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
-            }
-
-            GUI.AddRowForTeam("Player 3");
-            foreach (string pId in roomData_.team3.players)
-            {
-                String playerName = playersDict_[pId];
-                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
-            }
-
-            GUI.AddRowForTeam("Player 4");
-            foreach (string pId in roomData_.team4.players)
-            {
-                String playerName = playersDict_[pId];
-                GUI.AddRowForPlayer(playerName, pId, OnPlayerSelected);
-            }
-        }
-    }
 
     // lobby delegate events
     void Lobby_OnLobbyConncetedEvent()
@@ -440,31 +444,27 @@ public class Lobby : MonoBehaviour
     {
         Debug.Log("Player joined room");
         Debug.Log(eventData);
-
         // Store the new playerId and player name pair
         playersDict_[eventData.newPlayerId] = eventData.GetString();
-
         if (NetworkClient.Lobby.IsOwner)
         {
             // Find the team has space and assign the new player to it.
-            if (roomData_.team1.players.Count == 0)
-            {
-                roomData_.team1.players.Add(eventData.newPlayerId);
-            }
-            else if (roomData_.team2.players.Count == 0)
+            if (roomData_.team2.players.Count < roomData_.team1.players.Count)
             {
                 roomData_.team2.players.Add(eventData.newPlayerId);
             }
-            else if (roomData_.team3.players.Count == 0)
+            else if (roomData_.team3.players.Count < roomData_.team2.players.Count)
             {
                 roomData_.team3.players.Add(eventData.newPlayerId);
             }
-            else if (roomData_.team4.players.Count == 0)
+            else if (roomData_.team4.players.Count < roomData_.team3.players.Count)
             {
                 roomData_.team4.players.Add(eventData.newPlayerId);
             }
-            else 
-
+            else if (roomData_.team1.players.Count < roomData_.team4.players.Count)
+            {
+                roomData_.team1.players.Add(eventData.newPlayerId);
+            }
             // Update the room custom data
             NetworkClient.Lobby.ChangeRoomCustomData(roomData_, (bool successful, SWLobbyError error) =>
             {

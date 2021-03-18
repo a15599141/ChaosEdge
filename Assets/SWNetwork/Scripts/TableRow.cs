@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class TableRow : MonoBehaviour
 {
-
     public delegate void SelectedHandler(string objectId);
 
     /// <summary>
