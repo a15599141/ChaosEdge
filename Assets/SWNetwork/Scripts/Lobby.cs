@@ -19,12 +19,13 @@ public class Lobby : MonoBehaviour
     public Text playerNameText; // player name display in lobby
     public Text LobbyEntryTitle; // Game title in lobby entry
     public Button EntryRegisterButton;// Button for checking into SocketWeaver services
+    public Button EntryBackHomeButton;// Button for checking into SocketWeaver services
+    public Text EntryRegisterText;// text of Register Button
     public Button EnterLobbyButton;// Button for joining or creating room
     public Dropdown gameRegionDrowDown;// Dropdown for selecting the game region
 
     void Start()
     {
-
         // Subscribe to Lobby events
         NetworkClient.Lobby.OnNewPlayerJoinRoomEvent += Lobby_OnNewPlayerJoinRoomEvent;
         NetworkClient.Lobby.OnPlayerLeaveRoomEvent += Lobby_OnPlayerLeaveRoomEvent;
@@ -38,6 +39,7 @@ public class Lobby : MonoBehaviour
         // allow player to register in Lobby Entry
         customPlayerIdField.gameObject.SetActive(true);
         EntryRegisterButton.gameObject.SetActive(true);
+        EntryBackHomeButton.gameObject.SetActive(true);
         EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
         canvas.GetComponent<CanvasGroup>().alpha = 0;
@@ -58,10 +60,10 @@ public class Lobby : MonoBehaviour
         NetworkClient.Lobby.OnLobbyConnectedEvent -= Lobby_OnLobbyConncetedEvent;
     }
 
-    public void Register()
+    public void RegisterInLobbyEntry()
     {
         playerName_ = customPlayerIdField.text;
-
+        EntryRegisterText.text = "Registering...";
         if (playerName_ != null && playerName_.Length > 0)
         {
             // use the user entered playerId to check into SocketWeaver. Make sure the PlayerId is unique.
@@ -79,28 +81,15 @@ public class Lobby : MonoBehaviour
                 gameRegionDrowDown.gameObject.SetActive(true);
                 customPlayerIdField.gameObject.SetActive(false);
                 EntryRegisterButton.gameObject.SetActive(false);
+                EntryBackHomeButton.gameObject.SetActive(false);
             });
         }
         else
         {
-            // use a randomly generated playerId to check into SocketWeaver.
-            NetworkClient.Instance.CheckIn((bool ok, string error) =>
-            {
-                if (!ok)
-                {
-                    Debug.LogError("Check-in failed: " + error);
-                    return;
-                }
-                UpdateGameRegionDropdownOptions();
-
-                EnterLobbyButton.gameObject.SetActive(true);
-                gameRegionDrowDown.gameObject.SetActive(true);
-                customPlayerIdField.gameObject.SetActive(false);
-                EntryRegisterButton.gameObject.SetActive(false);
-            });
+            EntryRegisterText.text = "Register";
+            return;
         }
     }
-
     void UpdateGameRegionDropdownOptions()
     {
         if (NetworkClient.Instance == null)
@@ -109,37 +98,33 @@ public class Lobby : MonoBehaviour
         }
 
         gameRegionDrowDown.ClearOptions();
-
         int currentValue = 0;
 
         for (int i = 0; i < NetworkClient.Instance.AvailableNodeRegions.Length; i++)
         {
             NodeRegion nodeRegion = NetworkClient.Instance.AvailableNodeRegions[i];
-
             if (nodeRegion.name.Equals(NetworkClient.Instance.NodeRegion))
             {
                 currentValue = i;
             }
-
             gameRegionDrowDown.options.Add(new Dropdown.OptionData(nodeRegion.description));
         }
 
         gameRegionDrowDown.value = currentValue;
-
         gameRegionDrowDown.onValueChanged.AddListener(GameRegionChanged);
     }
-
-    /// <summary>
-    /// Game region value changed
-    /// </summary>
     public void GameRegionChanged(int value)
     {
         NodeRegion nodeRegion = NetworkClient.Instance.AvailableNodeRegions[value];
         NetworkClient.Instance.NodeRegion = nodeRegion.name;
     }
-
     public void EnterLobby()
     {
+        /*NetworkClient.Lobby.Register.GameRegionChanged(value, (bool ok, string error) =>
+        {
+
+        });*/
+        EntryRegisterText.text = "Register";
         EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
         LobbyEntryTitle.gameObject.SetActive(false);
@@ -149,7 +134,7 @@ public class Lobby : MonoBehaviour
         //canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
-    public void RegisterPlayer()
+    public void RegisterInLobby()
     {
         GUI.ShowRegisterPlayerPopup((bool ok, string playerName) =>
         {
@@ -194,7 +179,6 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
     public void GetRoomCustomData()
     {
         NetworkClient.Lobby.GetRoomCustomData((successful, reply, error) =>
@@ -216,10 +200,9 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
     public void CreateNewRoom()
     {
-        GUI.ShowNewGamePopup((bool ok, string roomName) =>
+        GUI.ShowNewRoomPopup((bool ok, string roomName) =>
         {
             if (ok)
             {
@@ -250,9 +233,9 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
-    public void SendRoomMessage(string message)
+    public void SendRoomMessage()
     {
+        string message = GUI.messageRoomText.text;
         Debug.Log("Send room message " + message);
         NetworkClient.Lobby.MessageRoom(message, (bool successful, SWLobbyError error) =>
         {
@@ -264,11 +247,11 @@ public class Lobby : MonoBehaviour
             }
             else
             {
-                Debug.Log("Failed to send room messagem " + error);
+                GUI.ShowSendRoomMessageErrorPopup();
+                Debug.Log("Failed to send room message " + error);
             }
         });
     }
-
     public void OnRoomSelected(string roomId)
     {
         Debug.Log("OnRoomSelected: " + roomId);
@@ -287,7 +270,6 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
     public void OnPlayerSelected(string playerId)
     {
         Debug.Log("OnPlayerSelected: " + playerId);
@@ -314,7 +296,6 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
     public void GetRooms()
     {
         // Get the rooms for the current page.
@@ -345,19 +326,16 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
     public void NextPage()
     {
         currentRoomPageIndex_++;
         GetRooms();
     }
-
     public void PreviousPage()
     {
         currentRoomPageIndex_--;
         GetRooms();
     }
-
     public void LeaveRoom()
     {
         NetworkClient.Lobby.LeaveRoom((successful, error) =>
@@ -366,6 +344,7 @@ public class Lobby : MonoBehaviour
             {
                 Debug.Log("Left room");
                 GUI.ClearPlayerList();
+                GUI.ClearRoomMessage();
                 GetRooms();
             }
             else
@@ -375,7 +354,19 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
+    public void StartRoom()
+    {
+        if (NetworkClient.Lobby.IsOwner)
+        {
+            Debug.Log("Connected to room");
+            SceneManager.LoadScene(5);
+        }
+        else
+        {
+            GUI.ShowStartRoomErrorPopup();
+            Debug.Log("Failed to connect to room");
+        }
+    }
     void RefreshPlayerList()
     {
         // Use the room custom data, and the playerId and player Name dictionary to populate the player lsit
@@ -445,7 +436,6 @@ public class Lobby : MonoBehaviour
             }
         });
     }
-
     void Lobby_OnNewPlayerJoinRoomEvent(SWJoinRoomEventData eventData)
     {
         Debug.Log("Player joined room");
@@ -456,23 +446,24 @@ public class Lobby : MonoBehaviour
 
         if (NetworkClient.Lobby.IsOwner)
         {
-            // Find the smaller team and assign the new player to it.
-            if (roomData_.team1.players.Count < roomData_.team2.players.Count)
+            // Find the team has space and assign the new player to it.
+            if (roomData_.team1.players.Count == 0)
             {
                 roomData_.team1.players.Add(eventData.newPlayerId);
             }
-            else if (roomData_.team2.players.Count < roomData_.team3.players.Count)
+            else if (roomData_.team2.players.Count == 0)
             {
                 roomData_.team2.players.Add(eventData.newPlayerId);
             }
-            else if (roomData_.team3.players.Count < roomData_.team4.players.Count)
+            else if (roomData_.team3.players.Count == 0)
             {
                 roomData_.team3.players.Add(eventData.newPlayerId);
             }
-            else 
+            else if (roomData_.team4.players.Count == 0)
             {
                 roomData_.team4.players.Add(eventData.newPlayerId);
             }
+            else 
 
             // Update the room custom data
             NetworkClient.Lobby.ChangeRoomCustomData(roomData_, (bool successful, SWLobbyError error) =>
@@ -489,7 +480,6 @@ public class Lobby : MonoBehaviour
             });
         }
     }
-
     void Lobby_OnPlayerLeaveRoomEvent(SWLeaveRoomEventData eventData)
     {
         Debug.Log("Player left room: " + eventData);
@@ -497,8 +487,10 @@ public class Lobby : MonoBehaviour
         if (NetworkClient.Lobby.IsOwner)
         {
             // Remove the players from both team.
-            roomData_.team2.players.RemoveAll(eventData.leavePlayerIds.Contains);
             roomData_.team1.players.RemoveAll(eventData.leavePlayerIds.Contains);
+            roomData_.team2.players.RemoveAll(eventData.leavePlayerIds.Contains);
+            roomData_.team3.players.RemoveAll(eventData.leavePlayerIds.Contains);
+            roomData_.team4.players.RemoveAll(eventData.leavePlayerIds.Contains);
 
             // Update the room custom data
             NetworkClient.Lobby.ChangeRoomCustomData(roomData_, (bool successful, SWLobbyError error) =>
@@ -515,7 +507,6 @@ public class Lobby : MonoBehaviour
             });
         }
     }
-
     void Lobby_OnRoomCustomDataChangeEvent(SWRoomCustomDataChangeEventData eventData)
     {
         Debug.Log("Room custom data changed: " + eventData);
@@ -526,30 +517,16 @@ public class Lobby : MonoBehaviour
         // Room custom data changed, refresh the player list.
         RefreshPlayerList();
     }
-
     void Lobby_OnRoomMessageEvent(SWMessageRoomEventData eventData)
     {
         string msg = "Room message: " + eventData.data;
         GUI.AddRowForMessage(msg, null, null);
     }
-
     void Lobby_OnPlayerMessageEvent(SWMessagePlayerEventData eventData)
     {
         string msg = eventData.playerId + ": " + eventData.data;
         GUI.AddRowForMessage(msg, null, null);
     }
 
-    public void StartRoom()
-    {
-        if (NetworkClient.Lobby.IsOwner)
-        {
-            Debug.Log("Connected to room");
-            SceneManager.LoadScene(5);
-        }
-        else
-        {
-            GUI.ShowStartRoomPopup();
-            Debug.Log("Failed to connect to room");
-        }
-    }
+    
 }

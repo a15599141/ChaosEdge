@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class LobbyGUI : MonoBehaviour
 {
@@ -23,12 +24,19 @@ public class LobbyGUI : MonoBehaviour
     public GameObject registerPlayerPopup;
 
     public InputField playerIdText;
-    public InputField messageText;
+    public InputField messagePlayerText;
+    public InputField messageRoomText;
+    //public Button sendRoomMessageButton;
     public GameObject messagePlayerPopup;
+    public GameObject sendRoomMessageErrorPopup;
 
     public GameObject CreateRoomErrorPopup;
     public GameObject LeaveRoomErrorPopup;
-    public GameObject StartRoomPopup;
+    public GameObject StartRoomErrorPopup;
+    public GameObject JoinRoomErrorPopup;
+
+    //public Button BackToMenuButton;
+    public GameObject BackToMenuPopup;
 
     /// <summary>
     /// The current message row count.
@@ -52,29 +60,12 @@ public class LobbyGUI : MonoBehaviour
     Action<bool, string, string> messagePlayerPopupCloseCallback;
 
     /// <summary>
-    /// Remove all the rows in the Player list.
-    /// </summary>
-    public void ClearPlayerList()
-    {
-        RemoveAllChildren(playerList.transform);
-    }
-
-    /// <summary>
-    /// Remove all the rows in the Room list.
-    /// </summary>
-    public void ClearRoomList()
-    {
-        RemoveAllChildren(roomList.transform);
-    }
-
-    /// <summary>
     /// Add a row to the Player list.
     /// </summary>
     public void AddRowForPlayer(string title, string objectId, TableRow.SelectedHandler callback)
     {
         AddRowToTable(playerList.transform, playerRowPrefab, title, objectId, callback);
     }
-
     /// <summary>
     /// Add a row to the Team list.
     /// </summary>
@@ -82,7 +73,6 @@ public class LobbyGUI : MonoBehaviour
     {
         AddRowToTable(playerList.transform, teamHeaderRowPrefab, title, null, null);
     }
-
     /// <summary>
     /// Add a row to the Room list.
     /// </summary>
@@ -90,13 +80,12 @@ public class LobbyGUI : MonoBehaviour
     {
         AddRowToTable(roomList.transform, roomRowPrefab, title, objectId, callback);
     }
-
     /// <summary>
     /// Add a row to the Message list.
     /// </summary>
     public void AddRowForMessage(string title, string objectId, TableRow.SelectedHandler callback)
     {
-        if(currentMessageRowCount == MAX_MESSAGE_ROW_COUNT)
+        if (currentMessageRowCount == MAX_MESSAGE_ROW_COUNT)
         {
             //remove the first message when MAX_MESSAGE_ROW_COUNT is reached.
             RemoveChild(messageList.transform);
@@ -105,46 +94,8 @@ public class LobbyGUI : MonoBehaviour
 
         currentMessageRowCount++;
         AddRowToTable(messageList.transform, messageRowPrefab, title, objectId, callback);
+        messageRoomText.text = "";
     }
-
-    public void ShowNewGamePopup(Action<bool, string> callback)
-    {
-        newRoomPopup.SetActive(true);
-        newRoomText.text = "";
-        newGamePopupCloseCallback = callback;
-    }
-
-    public void ShowRegisterPlayerPopup(Action<bool, string> callback)
-    {
-        registerPlayerPopup.SetActive(true);
-        playerNameText.text = "";
-        registerPlayerPopupCloseCallback = callback;
-    }
-
-    public void ShowMessagePlayerPopup(string targetPlayer, Action<bool, string, string> callback)
-    {
-        messagePlayerPopup.SetActive(true);
-        playerIdText.text = targetPlayer;
-        messageText.text = "";
-        messagePlayerPopupCloseCallback = callback;
-    }
-
-    public void ShowCreateRoomErrorPopup()
-    {
-        CreateRoomErrorPopup.SetActive(true);
-    }
-
-    public void ShowLeaveRoomErrorPopup()
-    {
-        LeaveRoomErrorPopup.SetActive(true);
-    }
-
-    public void ShowStartRoomPopup()
-    {
-        StartRoomPopup.SetActive(true);
-    }
-
-    // Helper methods
     void AddRowToTable(Transform table, GameObject rowPrefab, string title, string objectId, TableRow.SelectedHandler callback)
     {
         GameObject newRow = Instantiate(rowPrefab, table);
@@ -154,6 +105,68 @@ public class LobbyGUI : MonoBehaviour
         tableRow.SetObjectId(objectId);
     }
 
+    // Remove all the rows in the Player list.
+    public void ClearPlayerList()
+    {
+        RemoveAllChildren(playerList.transform);
+    }
+    // Remove all the rows in the Room list.
+    public void ClearRoomList()
+    {
+        RemoveAllChildren(roomList.transform);
+    }
+    // Remove all the messages in room chat.
+    public void ClearRoomMessage()
+    {
+        Destroy(messageList.gameObject);
+        currentMessageRowCount = 0;
+    }
+
+    public void ShowBackToMenuPopup()
+    {
+        BackToMenuPopup.SetActive(true);
+    }
+    public void ShowNewRoomPopup(Action<bool, string> callback)
+    {
+        newRoomPopup.SetActive(true);
+        newRoomText.text = "";
+        newGamePopupCloseCallback = callback;
+    }
+    public void ShowRegisterPlayerPopup(Action<bool, string> callback)
+    {
+        registerPlayerPopup.SetActive(true);
+        playerNameText.text = "";
+        registerPlayerPopupCloseCallback = callback;
+    }
+    public void ShowMessagePlayerPopup(string targetPlayer, Action<bool, string, string> callback)
+    {
+        messagePlayerPopup.SetActive(true);
+        playerIdText.text = targetPlayer;
+        messagePlayerText.text = "";
+        messagePlayerPopupCloseCallback = callback;
+    }
+    public void ShowCreateRoomErrorPopup()
+    {
+        CreateRoomErrorPopup.SetActive(true);
+    }
+    public void ShowJoinRoomErrorPopup()
+    {
+        JoinRoomErrorPopup.SetActive(true);
+    }
+    public void ShowLeaveRoomErrorPopup()
+    {
+        LeaveRoomErrorPopup.SetActive(true);
+    }
+    public void ShowStartRoomErrorPopup()
+    {
+        StartRoomErrorPopup.SetActive(true);
+    }
+    public void ShowSendRoomMessageErrorPopup()
+    {
+        sendRoomMessageErrorPopup.SetActive(true);
+    }
+
+    // Helper methods
     void RemoveAllChildren(Transform parent)
     {
         foreach (Transform childTransform in parent)
@@ -161,7 +174,6 @@ public class LobbyGUI : MonoBehaviour
             Destroy(childTransform.gameObject);
         }
     }
-
     void RemoveChild(Transform parent)
     {
         foreach (Transform childTransform in parent)
@@ -169,6 +181,15 @@ public class LobbyGUI : MonoBehaviour
             Destroy(childTransform.gameObject);
             return;
         }
+    }
+
+    public void HandleBackToMenuOk()
+    {
+        SceneManager.LoadScene("HomeScene");
+    }
+    public void HandleBackToMenuCancel()
+    {
+        BackToMenuPopup.SetActive(false);
     }
 
     public void HandleCreateGameOK()
@@ -187,7 +208,6 @@ public class LobbyGUI : MonoBehaviour
             Debug.LogWarning("Game name is empty.");
         }
     }
-
     public void HandleCreateGameCancel()
     {
         newRoomPopup.SetActive(false);
@@ -213,7 +233,6 @@ public class LobbyGUI : MonoBehaviour
             Debug.LogWarning("Player name is empty.");
         }
     }
-
     public void HandleRegisterPlayerCancel()
     {
         registerPlayerPopup.SetActive(false);
@@ -230,7 +249,7 @@ public class LobbyGUI : MonoBehaviour
             messagePlayerPopup.SetActive(false);
             if (messagePlayerPopupCloseCallback != null)
             {
-                messagePlayerPopupCloseCallback(true, playerIdText.text, messageText.text);
+                messagePlayerPopupCloseCallback(true, playerIdText.text, messagePlayerText.text);
             }
         }
         else
@@ -238,7 +257,6 @@ public class LobbyGUI : MonoBehaviour
             Debug.LogWarning("Player id is empty.");
         }
     }
-
     public void HandleMessagePlayerCancel()
     {
         messagePlayerPopup.SetActive(false);
@@ -252,12 +270,22 @@ public class LobbyGUI : MonoBehaviour
     {
         CreateRoomErrorPopup.SetActive(false);
     }
+    public void HandleJoinRoomErrorOk()
+    {
+        JoinRoomErrorPopup.SetActive(false);
+    }
     public void HandleLeaveRoomErrorOk()
     {
         LeaveRoomErrorPopup.SetActive(false);
     }
     public void HandleStartRoomErrorOk()
     {
-        StartRoomPopup.SetActive(false);
+        StartRoomErrorPopup.SetActive(false);
     }
+    public void HandleSendRoomMessageErrorOk()
+    {
+        sendRoomMessageErrorPopup.SetActive(false);
+    }
+
+
 }
