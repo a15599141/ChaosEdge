@@ -5,7 +5,7 @@ using UnityEngine;
 public class Numbers : MonoBehaviour
 {
     GameObject Num1, Num2, Num3, Num4, Num5, Num6;
-    GameObject DiceCopy;
+    public GameObject DiceCopy;
     public int DiceFaceUpNum;
     // Start is called before the first frame update
     void Start()
@@ -19,11 +19,11 @@ public class Numbers : MonoBehaviour
         DiceCopy = GameObject.Find("Dice").gameObject;
         setAllFalse();
     }
-
+    
     // Update is called once per frame
     void Update()
     {
-        DiceFaceUpNum = DiceCopy.GetComponent<Dice>().DiceFaceUpNum;
+        DiceFaceUpNum = DiceCopy.GetComponent<Dice>().GetNum();
         setAllFalse();
         if (DiceFaceUpNum == 1)
         {

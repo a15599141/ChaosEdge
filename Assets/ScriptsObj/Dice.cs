@@ -2,18 +2,17 @@
  
 public class Dice : MonoBehaviour
 {
-    public int DiceFaceUpNum;
     void Start()
     {
 
     }
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
-        GetNum(); // 如果色子不动,则获取其点数
+
     }
 
-    void GetNum()
+    public int GetNum()
     {
         Transform[] obj = new Transform[6];//声明数组存放色子的六个面
         Transform upFace= transform.GetChild(0).GetChild(0);//声明朝上的面 
@@ -25,7 +24,7 @@ public class Dice : MonoBehaviour
                 upFace = obj[i];
             }
         }
-        DiceFaceUpNum = int.Parse(upFace.name);//将朝上面 的名字 转化为int
+        return int.Parse(upFace.name);//将朝上面 的名字 转化为int
         //Debug.Log("点数是： " + DiceFaceUpNum);
     }
 }
