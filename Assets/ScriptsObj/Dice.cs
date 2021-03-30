@@ -19,7 +19,7 @@ public class Dice : MonoBehaviour
         for (int i = 0; i < 6; i++)//循环判断哪个面朝上
         {
             obj[i] = transform.GetChild(0).GetChild(i);
-            if (obj[i].position.y > upFace.position.y)
+            if (obj[i].position.y > upFace.position.y) // 判断每个面y坐标的值
             {
                 upFace = obj[i];
             }

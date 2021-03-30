@@ -4,26 +4,19 @@ using UnityEngine;
 
 public class Numbers : MonoBehaviour
 {
-    GameObject Num1, Num2, Num3, Num4, Num5, Num6;
-    public GameObject DiceCopy;
+    public GameObject Num1, Num2, Num3, Num4, Num5, Num6;
+    public GameObject Dice;
     public int DiceFaceUpNum;
     // Start is called before the first frame update
     void Start()
     {
-        Num1 = GameObject.Find("Num1").gameObject;
-        Num2 = GameObject.Find("Num2").gameObject;
-        Num3 = GameObject.Find("Num3").gameObject;
-        Num4 = GameObject.Find("Num4").gameObject;
-        Num5 = GameObject.Find("Num5").gameObject;
-        Num6 = GameObject.Find("Num6").gameObject;
-        DiceCopy = GameObject.Find("Dice").gameObject;
         setAllFalse();
     }
     
     // Update is called once per frame
     void Update()
     {
-        DiceFaceUpNum = DiceCopy.GetComponent<Dice>().GetNum();
+        DiceFaceUpNum = Dice.GetComponent<Dice>().GetNum();
         setAllFalse();
         if (DiceFaceUpNum == 1)
         {

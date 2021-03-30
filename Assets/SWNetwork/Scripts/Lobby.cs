@@ -8,12 +8,15 @@ public class Lobby : MonoBehaviour
 {
     public LobbyGUI GUI;
     public Canvas canvas;
+    public NetworkClient NetworkClient;
 
     Dictionary<string, string> playersDict_; // Used to display players in different teams.
     RoomCustomData roomData_; // Current room's custom data.
 
     int currentRoomPageIndex_ = 0;// Current page index of the room list. 
+    int MAX_PLAYER_NUM = 4;
 
+    public Text LobbyPing;
     public InputField customPlayerIdField; // Button for entering custom playerId
     string playerName_; // Player entered name
     public Text playerNameText; // player name display in lobby
@@ -27,12 +30,12 @@ public class Lobby : MonoBehaviour
     {
         // Subscribe to Lobby events
         NetworkClient.Lobby.OnNewPlayerJoinRoomEvent += Lobby_OnNewPlayerJoinRoomEvent;
+        NetworkClient.Lobby.OnRoomReadyEvent += Lobby_OnRoomReadyEvent;
+        NetworkClient.Lobby.OnFailedToStartRoomEvent += Lobby_OnFailedToStartRoomEvent;
         NetworkClient.Lobby.OnPlayerLeaveRoomEvent += Lobby_OnPlayerLeaveRoomEvent;
         NetworkClient.Lobby.OnRoomCustomDataChangeEvent += Lobby_OnRoomCustomDataChangeEvent;
-
         NetworkClient.Lobby.OnRoomMessageEvent += Lobby_OnRoomMessageEvent;
         NetworkClient.Lobby.OnPlayerMessageEvent += Lobby_OnPlayerMessageEvent;
-
         NetworkClient.Lobby.OnLobbyConnectedEvent += Lobby_OnLobbyConncetedEvent;
 
         // allow player to register in Lobby Entry
@@ -45,20 +48,30 @@ public class Lobby : MonoBehaviour
         //canvas.GetComponent<CanvasGroup>().interactable = false;
         //canvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
+    void Update()
+    {
+        LobbyPing.text = "ping: "+NetworkClient.LobbyPing + "ms"; 
+        if (Input.GetKeyDown(KeyCode.KeypadEnter)||Input.GetKeyDown(KeyCode.Return))
+        {
+            SendRoomMessage();
+        }
+    }
     void OnDestroy()
     {
         // Unsubscrible to Lobby events
         NetworkClient.Lobby.OnNewPlayerJoinRoomEvent -= Lobby_OnNewPlayerJoinRoomEvent;
         NetworkClient.Lobby.OnPlayerLeaveRoomEvent -= Lobby_OnPlayerLeaveRoomEvent;
         NetworkClient.Lobby.OnRoomCustomDataChangeEvent -= Lobby_OnRoomCustomDataChangeEvent;
-
         NetworkClient.Lobby.OnRoomMessageEvent -= Lobby_OnRoomMessageEvent;
         NetworkClient.Lobby.OnPlayerMessageEvent -= Lobby_OnPlayerMessageEvent;
-
         NetworkClient.Lobby.OnLobbyConnectedEvent -= Lobby_OnLobbyConncetedEvent;
     }
 
     // Lobby entry
+    public void BackToHomeMenu()
+    {
+        SceneManager.LoadScene("HomeScene");
+    }
     public void RegisterInLobbyEntry()
     {
         playerName_ = customPlayerIdField.text;
@@ -85,6 +98,7 @@ public class Lobby : MonoBehaviour
         }
         else
         {
+            customPlayerIdField.Select();
             EntryRegisterText.text = "Register";
             return;
         }
@@ -149,7 +163,10 @@ public class Lobby : MonoBehaviour
                     {
                         Debug.LogError(error);
                     }
-                    else playerNameText.text = playerName_;
+                    else
+                    {
+                        playerNameText.text = playerName_;
+                    }
                 });
             }
         });
@@ -234,7 +251,7 @@ public class Lobby : MonoBehaviour
                 roomData_.team4 = new TeamCustomData();
                 roomData_.team1.players.Add(NetworkClient.Lobby.PlayerId);
                 // use the serializable roomData_ object as room's custom data.
-                NetworkClient.Lobby.CreateRoom(roomData_, true, 4, (successful, reply, error) =>
+                NetworkClient.Lobby.CreateRoom(roomData_, true, MAX_PLAYER_NUM, (successful, reply, error) =>
                 {
                     if (successful)
                     {
@@ -243,6 +260,7 @@ public class Lobby : MonoBehaviour
                         GetRooms();
                         // refresh the player list
                         GetPlayersInCurrentRoom();
+                        GUI.CreatingRoomMessagePopup.SetActive(false);
                     }
                     else
                     {
@@ -259,7 +277,7 @@ public class Lobby : MonoBehaviour
         Debug.Log("Send room message " + message);
         NetworkClient.Lobby.MessageRoom(message, (bool successful, SWLobbyError error) =>
         {
-            if (successful)
+            if (successful && message != "")
             {
                 Debug.Log("Sent room message");
                 string msg = "Sent to room: " + message;
@@ -267,12 +285,16 @@ public class Lobby : MonoBehaviour
             }
             else
             {
-                GUI.ShowSendRoomMessageErrorPopup();
-                Debug.Log("Failed to send room message " + error);
+                if (message == "") GUI.messageRoomText.Select();
+                else
+                {
+                    GUI.ShowSendRoomMessageErrorPopup();
+                    Debug.Log("Failed to send room message " + error);
+                }
+                
             }
         });
     }
-    
     public void OnPlayerSelected(string playerId)
     {
         Debug.Log("OnPlayerSelected: " + playerId);
@@ -282,13 +304,13 @@ public class Lobby : MonoBehaviour
         {
             if (ok)
             {
-                Debug.Log("Send player message " + "playerId= " + targetPlayerId + " message= " + message);
+                Debug.Log("Send player message " + "playerId= " + " message= " + message);
                 NetworkClient.Lobby.MessagePlayer(playerId, message, (bool successful, SWLobbyError error) =>
                 {
                     if (successful)
                     {
                         Debug.Log("Sent player message");
-                        string msg = "Sent to " + targetPlayerId + ": " + message;
+                        string msg = "Sent to " + ": " + message;
                         GUI.AddRowForMessage(msg, null, null);
                     }
                     else
@@ -394,18 +416,49 @@ public class Lobby : MonoBehaviour
     }
     public void StartRoom()
     {
+        GUI.StartingRoomMessagePopup.SetActive(true);
         if (NetworkClient.Lobby.IsOwner)
         {
-            Debug.Log("Connected to room");
-            SceneManager.LoadScene(5);
+            NetworkClient.Lobby.StartRoom((okay, error) =>
+            {
+                if (okay)
+                {
+                    // Lobby server has sent request to SocketWeaver. The request is being processed.
+                    // If socketweaver finds suitable server, Lobby server will invoke the 'OnRoomReadyEvent'.
+                    // If socketweaver cannot find suitable server, Lobby server will invoke the OnFailedToStartRoomEvent.
+                    Debug.Log("Started room");
+                }
+                else
+                {
+                    GUI.StartingRoomMessagePopup.SetActive(false);
+                    Debug.Log("Failed to start room " + error);
+                }
+            });
         }
         else
         {
+            GUI.StartingRoomMessagePopup.SetActive(false);
             GUI.ShowStartRoomErrorPopup();
             Debug.Log("Failed to connect to room");
         }
     }
-
+    void ConnectToRoom()
+    {
+        NetworkClient.Instance.ConnectToRoom(HandleConnectedToRoom);
+    }
+    void HandleConnectedToRoom(bool connected)
+    {
+        if (connected)
+        {
+            Debug.Log("Connected to room");
+            SceneManager.LoadScene("MainScene");
+        }
+        else
+        {
+            Debug.Log("Failed to connect to room");
+        }
+        GUI.StartingRoomMessagePopup.SetActive(false);
+    }
 
     // lobby delegate events
     void Lobby_OnLobbyConncetedEvent()
@@ -491,7 +544,6 @@ public class Lobby : MonoBehaviour
             roomData_.team2.players.RemoveAll(eventData.leavePlayerIds.Contains);
             roomData_.team3.players.RemoveAll(eventData.leavePlayerIds.Contains);
             roomData_.team4.players.RemoveAll(eventData.leavePlayerIds.Contains);
-
             // Update the room custom data
             NetworkClient.Lobby.ChangeRoomCustomData(roomData_, (bool successful, SWLobbyError error) =>
             {
@@ -527,6 +579,14 @@ public class Lobby : MonoBehaviour
         string msg = eventData.playerId + ": " + eventData.data;
         GUI.AddRowForMessage(msg, null, null);
     }
-
-    
+    void Lobby_OnRoomReadyEvent(SWRoomReadyEventData eventData)
+    {
+        Debug.Log("Room is ready: roomId= " + eventData.roomId);
+        // Room is ready to join and its game servers have been assigned.
+        ConnectToRoom();
+    }
+    void Lobby_OnFailedToStartRoomEvent(SWFailedToStartRoomEventData eventData)
+    {
+        Debug.Log("Failed to start room: " + eventData);
+    }
 }

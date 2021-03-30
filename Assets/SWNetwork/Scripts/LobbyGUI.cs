@@ -20,6 +20,8 @@ public class LobbyGUI : MonoBehaviour
 
     public InputField newRoomText;
     public GameObject newRoomPopup;
+    public GameObject CreatingRoomMessagePopup;
+    public GameObject StartingRoomMessagePopup;
 
     public InputField playerNameText;
     public GameObject registerPlayerPopup;
@@ -27,7 +29,7 @@ public class LobbyGUI : MonoBehaviour
     public InputField playerIdText;
     public InputField messagePlayerText;
     public InputField messageRoomText;
-    //public Button sendRoomMessageButton;
+    public Button sendRoomMessageButton;
     public GameObject messagePlayerPopup;
     public GameObject sendRoomMessageErrorPopup;
 
@@ -36,7 +38,6 @@ public class LobbyGUI : MonoBehaviour
     public GameObject StartRoomErrorPopup;
     public GameObject JoinRoomErrorPopup;
 
-    //public Button BackToMenuButton;
     public GameObject BackToMenuPopup;
 
     /// <summary>
@@ -206,8 +207,9 @@ public class LobbyGUI : MonoBehaviour
         BackToMenuPopup.SetActive(false);
     }
 
-    public void HandleCreateGameOK()
+    public void HandleCreateRoomOK()
     {
+        CreatingRoomMessagePopup.SetActive(true);
         if (newRoomText.text.Length > 0)
         {
             newRoomPopup.SetActive(false);
@@ -221,8 +223,9 @@ public class LobbyGUI : MonoBehaviour
             // must enter a game name
             Debug.LogWarning("Game name is empty.");
         }
+
     }
-    public void HandleCreateGameCancel()
+    public void HandleCreateRoomCancel()
     {
         newRoomPopup.SetActive(false);
         if (newGamePopupCloseCallback != null)
@@ -238,6 +241,20 @@ public class LobbyGUI : MonoBehaviour
             registerPlayerPopup.SetActive(false);
             if (registerPlayerPopupCloseCallback != null)
             {
+                // left current joined room once player change  its name in lobby
+                NetworkClient.Lobby.LeaveRoom((successful, error) =>
+                {
+                    if (successful)
+                    {
+                        Debug.Log("Left room");
+                        ClearPlayerList();
+                        ClearRoomMessage();
+                    }
+                    else
+                    {
+                        Debug.Log("Failed to leave room " + error);
+                    }
+                });
                 registerPlayerPopupCloseCallback(true, playerNameText.text);
             }
         }

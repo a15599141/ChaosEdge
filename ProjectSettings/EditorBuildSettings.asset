@@ -9,23 +9,11 @@ EditorBuildSettings:
     path: Assets/Scenes/HomeScene.unity
     guid: 9e00080fbea32354db9346a0f3c1ea2b
   - enabled: 1
-    path: Assets/Scenes/GameInitialize_SinglePlayer.unity
-    guid: 0b8369d8cd073f943b3477d95d35fd29
-  - enabled: 1
     path: Assets/Scenes/Room(Client)Sence.unity
     guid: 2b0588d3f496aa149ac289913f8cb870
   - enabled: 1
-    path: Assets/Scenes/OptionsScene.unity
-    guid: 66cb22761f5cf534d90a8e2722c253d0
-  - enabled: 1
     path: Assets/Scenes/Room(Host)Sence.unity
     guid: c9edddca622b3734a8a00fc68f8e96f5
-  - enabled: 1
-    path: Assets/Scenes/AIPlayerSetting(SinglePlayer).unity
-    guid: e5c27f2ab6ca24946817cda5b7cce52c
-  - enabled: 1
-    path: Assets/Scenes/AIPlayerSetting(MutiPlayer).unity
-    guid: 2a765d2b269c80945a16bf4af9df51e4
   - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab

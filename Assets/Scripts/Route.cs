@@ -7,7 +7,6 @@ public class Route : MonoBehaviour
     Transform[] childObjects;
     public List<Transform> childNodeList = new List<Transform>();
 
-
     void OnDrawGizmos()
     {
         Gizmos.color = Color.green;

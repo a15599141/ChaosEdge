@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using UnityEngine;
+using SWNetwork;
 
 public class testedPlayer : MonoBehaviour
 {
     public Route currentRoute;
     public GameManager gm;
+    NetworkID networkId;
 
     int routePosition;
     public int steps;
@@ -16,6 +18,7 @@ public class testedPlayer : MonoBehaviour
     void Start()
     {
         gm = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        networkId = GetComponent<NetworkID>();
     }
     // Update is called once per frame
     void Update()

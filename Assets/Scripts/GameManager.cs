@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using SWNetwork;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-
-    public GameObject player; //玩家对象
     public GameObject dice;     //骰子对象
-    public List<GameObject> planes; //格子对象集合
-
     private Rigidbody diceRb;   //骰子刚体
 
     public Button rollButton;   //掷骰子按钮
@@ -21,10 +19,10 @@ public class GameManager : MonoBehaviour
     private int roundCount;     //游戏轮数计数器
     private int rotateLimit = 30;   //骰子转动速度
 
-
     // Start is called before the first frame update
     void Start()
     {
+        //if(NetworkClient.)
         diceRb = dice.GetComponent<Rigidbody>();
     }
 
@@ -70,13 +68,62 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
     private int RandomRotation()
     {
         return Random.Range(rotateLimit, -rotateLimit);
     }
 
-    private void PlayerMoving()
+    // 联机向
+    public void Exit()
     {
+        SceneManager.LoadScene("HomeScene");
+        NetworkClient.Instance.DisconnectFromRoom();
+        NetworkClient.Lobby.LeaveRoom(HandleLeaveRoom);
     }
+    void HandleLeaveRoom(bool okay, SWLobbyError error)
+    {
+        if (!okay)
+        {
+            Debug.LogError(error);
+        }
+        Debug.Log("Left room");
+        SceneManager.LoadScene("HomeScene");
+    }
+    public void OnHostSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner)
+    {
+        Debug.Log("OnHostSpawnerReady " + alreadySetup);
+        if (!alreadySetup)
+        {
+            sceneSpawner.SpawnForPlayer(0, 0); //spawn for player 1
+            sceneSpawner.SpawnForPlayer(1, 1); //spawn for player 2
+            sceneSpawner.SpawnForPlayer(2, 2); //spawn for player 3
+            sceneSpawner.SpawnForPlayer(3, 3); //spawn for player 4
+            sceneSpawner.SpawnForNonPlayer(0, 4); // spawn for the dice, its index in nonPlayerPrefab is 0, its spawnPointIndex is 4
+            sceneSpawner.HostFinishedSceneSetup();
+        }
+    }
+    public void OnSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner)
+    {
+        Debug.Log("OnSpawnerReady " + alreadySetup);
+
+        // Check alreadySetup to see if the scene has been set up before. 
+        // If it is true, it means the player disconnected and reconnected to the game. 
+        // In this case, we should not spawn a new Player GameObject for the player.
+        if (!alreadySetup)
+        {
+            // If alreadySetup is false, it means the player just started the game. 
+            // We randomly select a SpawnPoint and ask the SceneSpawner to spawn a Player GameObject. 
+            // we have 1 playerPrefabs so playerPrefabIndex is 0.
+            // We have 4 spawnPoints so we generated a random int between 0 to 3.
+
+            //int playerPrefabIndex = Random.Range(0, 3);
+            //int spawnPointIndex = Random.Range(0, 3);
+            //sceneSpawner.SpawnForPlayer(playerPrefabIndex, spawnPointIndex);
+
+            // Tell the spawner that we have finished setting up the scene. 
+            // alreadySetup will be true when SceneSpawn becomes ready next time.
+            //sceneSpawner.PlayerFinishedSceneSetup();
+        }
+    }
+
 }
