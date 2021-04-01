@@ -4,11 +4,11 @@ using System;
 using SWNetwork;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 public class Lobby : MonoBehaviour
 {
     public LobbyGUI GUI;
-    public Canvas canvas;
-    public NetworkClient NetworkClient;
+    public Canvas canvas; // lobby entry
 
     Dictionary<string, string> playersDict_; // Used to display players in different teams.
     RoomCustomData roomData_; // Current room's custom data.
@@ -20,7 +20,7 @@ public class Lobby : MonoBehaviour
     public InputField customPlayerIdField; // Button for entering custom playerId
     string playerName_; // Player entered name
     public Text playerNameText; // player name display in lobby
-    public Text LobbyEntryTitle; // Game title in lobby entry
+    public TMP_Text LobbyEntryTitle; // Game title in lobby entry
     public Button EntryRegisterButton;// Button for checking into SocketWeaver services
     public Button EntryBackHomeButton;// Button for checking into SocketWeaver services
     public Text EntryRegisterText;// text of Register Button
@@ -45,12 +45,11 @@ public class Lobby : MonoBehaviour
         EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
         canvas.GetComponent<CanvasGroup>().alpha = 0;
-        //canvas.GetComponent<CanvasGroup>().interactable = false;
-        //canvas.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
     }
     void Update()
     {
-        LobbyPing.text = "ping: "+NetworkClient.LobbyPing + "ms"; 
+        LobbyPing.text = "ping: " + NetworkClient.Instance.LobbyPing + "ms";
         if (Input.GetKeyDown(KeyCode.KeypadEnter)||Input.GetKeyDown(KeyCode.Return))
         {
             SendRoomMessage();
@@ -60,6 +59,8 @@ public class Lobby : MonoBehaviour
     {
         // Unsubscrible to Lobby events
         NetworkClient.Lobby.OnNewPlayerJoinRoomEvent -= Lobby_OnNewPlayerJoinRoomEvent;
+        NetworkClient.Lobby.OnRoomReadyEvent -= Lobby_OnRoomReadyEvent;
+        NetworkClient.Lobby.OnFailedToStartRoomEvent -= Lobby_OnFailedToStartRoomEvent;
         NetworkClient.Lobby.OnPlayerLeaveRoomEvent -= Lobby_OnPlayerLeaveRoomEvent;
         NetworkClient.Lobby.OnRoomCustomDataChangeEvent -= Lobby_OnRoomCustomDataChangeEvent;
         NetworkClient.Lobby.OnRoomMessageEvent -= Lobby_OnRoomMessageEvent;
@@ -84,23 +85,17 @@ public class Lobby : MonoBehaviour
                 if (!ok)
                 {
                     Debug.LogError("Check-in failed: " + error);
+                    EntryRegisterText.text = "Register";
                     return;
                 }
                 playerNameText.text = playerName_;
                 UpdateGameRegionDropdownOptions();
-
-                EnterLobbyButton.gameObject.SetActive(true);
-                gameRegionDrowDown.gameObject.SetActive(true);
-                customPlayerIdField.gameObject.SetActive(false);
-                EntryRegisterButton.gameObject.SetActive(false);
-                EntryBackHomeButton.gameObject.SetActive(false);
             });
         }
         else
         {
             customPlayerIdField.Select();
             EntryRegisterText.text = "Register";
-            return;
         }
     }
     void UpdateGameRegionDropdownOptions()
@@ -133,18 +128,11 @@ public class Lobby : MonoBehaviour
     }
     public void EnterLobby()
     {
-        /*NetworkClient.Lobby.Register.GameRegionChanged(value, (bool ok, string error) =>
-        {
-
-        });*/
         EntryRegisterText.text = "Register";
         EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
         LobbyEntryTitle.gameObject.SetActive(false);
         canvas.GetComponent<CanvasGroup>().alpha = 1;
-        GetRooms();
-        //canvas.GetComponent<CanvasGroup>().interactable = true;
-        //canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
     // In lobby
@@ -461,7 +449,7 @@ public class Lobby : MonoBehaviour
     }
 
     // lobby delegate events
-    void Lobby_OnLobbyConncetedEvent()
+    void Lobby_OnLobbyConncetedEvent() // called after check in 
     {
         Debug.Log("Lobby_OnLobbyConncetedEvent");
         // Register the player using the entered player name.
@@ -470,29 +458,22 @@ public class Lobby : MonoBehaviour
             if (successful)
             {
                 Debug.Log("Lobby registered " + reply);
-                if (reply.started)
-                {
-                    // Player is in a room and the room has started.
-                    // Call NetworkClient.Instance.ConnectToRoom to connect to the game servers of the room.
-                }
-                else if (reply.roomId != null)
-                {
-                    // Player is in a room.
-                    GetRooms();
-                    GetPlayersInCurrentRoom();
-                }
-                else
-                {
-                    // Player is not in a room.
-                    GetRooms();
-                }
+                GetRooms();
+                // display region selection
+                EnterLobbyButton.gameObject.SetActive(true);
+                gameRegionDrowDown.gameObject.SetActive(true);
+                customPlayerIdField.gameObject.SetActive(false);
+                EntryRegisterButton.gameObject.SetActive(false);
+                EntryBackHomeButton.gameObject.SetActive(false);
+                
             }
             else
             {
                 Debug.Log("Lobby failed to register " + error);
+                EntryRegisterText.text = "Register";
             }
         });
-    }
+    } 
     void Lobby_OnNewPlayerJoinRoomEvent(SWJoinRoomEventData eventData)
     {
         Debug.Log("Player joined room");

@@ -15,7 +15,6 @@ public class HomeGUI : MonoBehaviour
     {
         
     }
-
     // Update is called once per frame
     void Update()
     {

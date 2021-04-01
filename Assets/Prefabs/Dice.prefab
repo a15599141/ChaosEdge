@@ -628,6 +628,7 @@ GameObject:
   - component: {fileID: 6323151666515181604}
   - component: {fileID: 3181054740408384407}
   - component: {fileID: 5242350164686229010}
+  - component: {fileID: 9122765556215962789}
   m_Layer: 0
   m_Name: Dice
   m_TagString: Untagged
@@ -863,3 +864,34 @@ MonoBehaviour:
   syncTransFormFoldout: 1
   syncAnimatorFoldout: 0
   restoreState: 1
+--- !u!114 &9122765556215962789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6323151666515181605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 202338497, guid: 6a67afbfe15ab9c4696e982c25d07a84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  remoteEvents_:
+  - eventName: RollDice
+    Foldout: 1
+    target: 0
+    remoteEvent:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 11500000, guid: 2a920936a70f94a47a1b6ce8404f0919, type: 3}
+          m_TargetAssemblyTypeName: 
+          m_MethodName: 
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2

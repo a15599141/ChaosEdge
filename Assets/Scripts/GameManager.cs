@@ -35,11 +35,10 @@ public class GameManager : MonoBehaviour
     public void RollDiceOnClick()
     {
         roundCount++; //回合数加1
-        roundText.text = "Round: " + roundCount.ToString();//更新回合数
+        roundText.text = "ROUND " + roundCount.ToString();//更新回合数
         rollButton.interactable = false; // 禁用摇色子按钮
         StartCoroutine("RollDice");//启动骰子协程
     }
-
     //协程控制骰子转动
     private IEnumerator RollDice()
     {
@@ -73,8 +72,11 @@ public class GameManager : MonoBehaviour
         return Random.Range(rotateLimit, -rotateLimit);
     }
 
-    // 联机向
-    public void Exit()
+
+
+    /* --------- 联机向 ----------- */
+    // 退出游戏，返回主界面
+    public void Exit() 
     {
         SceneManager.LoadScene("HomeScene");
         NetworkClient.Instance.DisconnectFromRoom();
@@ -89,7 +91,8 @@ public class GameManager : MonoBehaviour
         Debug.Log("Left room");
         SceneManager.LoadScene("HomeScene");
     }
-    public void OnHostSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner)
+    // 游戏场景初始化
+    public void OnHostSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner) 
     {
         Debug.Log("OnHostSpawnerReady " + alreadySetup);
         if (!alreadySetup)
@@ -102,28 +105,4 @@ public class GameManager : MonoBehaviour
             sceneSpawner.HostFinishedSceneSetup();
         }
     }
-    public void OnSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner)
-    {
-        Debug.Log("OnSpawnerReady " + alreadySetup);
-
-        // Check alreadySetup to see if the scene has been set up before. 
-        // If it is true, it means the player disconnected and reconnected to the game. 
-        // In this case, we should not spawn a new Player GameObject for the player.
-        if (!alreadySetup)
-        {
-            // If alreadySetup is false, it means the player just started the game. 
-            // We randomly select a SpawnPoint and ask the SceneSpawner to spawn a Player GameObject. 
-            // we have 1 playerPrefabs so playerPrefabIndex is 0.
-            // We have 4 spawnPoints so we generated a random int between 0 to 3.
-
-            //int playerPrefabIndex = Random.Range(0, 3);
-            //int spawnPointIndex = Random.Range(0, 3);
-            //sceneSpawner.SpawnForPlayer(playerPrefabIndex, spawnPointIndex);
-
-            // Tell the spawner that we have finished setting up the scene. 
-            // alreadySetup will be true when SceneSpawn becomes ready next time.
-            //sceneSpawner.PlayerFinishedSceneSetup();
-        }
-    }
-
 }
