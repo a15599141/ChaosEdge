@@ -5,8 +5,7 @@ using SWNetwork;
 public class testedPlayer : MonoBehaviour
 {
     public Route currentRoute;
-    public GameManager gm;
-    NetworkID networkId;
+    public Dice dice;
 
     int routePosition;
     public int steps;
@@ -17,16 +16,15 @@ public class testedPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gm = GameObject.Find("Game Manager").GetComponent<GameManager>();
-        networkId = GetComponent<NetworkID>();
+       
     }
     // Update is called once per frame
     void Update()
     {
-        if (gm.moveAllowed&&!isMoving)
+        if (dice.moveAllowed&&!isMoving)
         {
-            gm.moveAllowed = false;
-            steps = gm.diceNumber;
+            dice.moveAllowed = false;
+            steps = dice.diceNumber;
             Debug.Log("dice number: "+steps);
             StartCoroutine(Move());
         }
@@ -56,7 +54,7 @@ public class testedPlayer : MonoBehaviour
         }
 
         isMoving = false;
-        gm.rollButton.interactable = true;
+        dice.rollButton.interactable = true;
     }
 
     bool MoveToNextNode(Vector3 goal)
