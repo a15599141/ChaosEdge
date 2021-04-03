@@ -4,8 +4,20 @@ using UnityEngine;
 
 public class Route : MonoBehaviour
 {
-    Transform[] childObjects;
-    public List<Transform> childNodeList = new List<Transform>();
+    public int routeNum; //格子总数
+    public List<Transform> childNodeList = new List<Transform>();// 保存格子对象
+
+    private static Route _instacnce;//单例模式
+
+    public static Route Instacnce
+    {
+        get
+        {
+            if (_instacnce == null)
+                _instacnce = GameObject.FindWithTag("Route").GetComponent<Route>();
+            return _instacnce;
+        }
+    }
 
     void OnDrawGizmos()
     {
@@ -13,14 +25,11 @@ public class Route : MonoBehaviour
 
         childNodeList.Clear();
 
-        childObjects = GetComponentsInChildren<Transform>();
+        routeNum = transform.childCount;
 
-        foreach (Transform child in childObjects)
+        for (int i = 0;i<routeNum;i++)
         {
-            if (child != this.transform)
-            {
-                childNodeList.Add(child);
-            }
+            childNodeList.Add(transform.GetChild(i));
         }
 
         for (int i = 0; i < childNodeList.Count; i++)

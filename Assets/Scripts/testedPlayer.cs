@@ -2,21 +2,22 @@
 using UnityEngine;
 using SWNetwork;
 
-public class testedPlayer : MonoBehaviour
+public class TestedPlayer : MonoBehaviour
 {
     public Route currentRoute;
     public Dice dice;
+    public GameManager gm;
 
-    int routePosition;
-    int steps;
-    bool isMoving;
+    public int routePosition;//玩家所在格子位置
+    int steps; //玩家需要移动的格子数
+    bool isMoving; //判断玩家是否移动中
 
-    public float moveSpeed = 5.0f;
+    public float moveSpeed = 5.0f;//移动速度
 
     // Start is called before the first frame update
     void Start()
     {
-       
+        gm = GetComponent<GameManager>();
     }
     // Update is called once per frame
     void Update()
@@ -26,11 +27,11 @@ public class testedPlayer : MonoBehaviour
             dice.moveAllowed = false;
             steps = dice.diceNumber;
             Debug.Log("dice number: "+steps);
-            StartCoroutine(Move());
+            StartCoroutine(PlayerMove());
         }
     }
 
-    IEnumerator Move()
+    IEnumerator PlayerMove()
     {
         if (isMoving)
         {
@@ -53,11 +54,22 @@ public class testedPlayer : MonoBehaviour
         }
 
         isMoving = false;
-        dice.rollButton.interactable = true;
+
+        //处理格子事件
+        DealWithRoute();
     }
 
     bool MoveToNextNode(Vector3 goal)
     {
         return goal != (transform.position = Vector3.MoveTowards(transform.position, goal, moveSpeed * Time.deltaTime));
+    }
+
+    //格子交互
+    public void DealWithRoute()
+    {
+        CanvasManager.Instance.ToCanvasStation();
+
+        
+
     }
 }
