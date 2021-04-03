@@ -21,13 +21,11 @@ public class GameManager : MonoBehaviour
 
     }
 
-
     /* --------- 联机向 ----------- */
     // 退出游戏，返回主界面
     public void Exit() 
     {
         SceneManager.LoadScene("HomeScene");
-        NetworkClient.Instance.DisconnectFromRoom();
         NetworkClient.Lobby.LeaveRoom(HandleLeaveRoom);
     }
     void HandleLeaveRoom(bool okay, SWLobbyError error)

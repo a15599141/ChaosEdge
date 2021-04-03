@@ -8,7 +8,7 @@ public class testedPlayer : MonoBehaviour
     public Dice dice;
 
     int routePosition;
-    public int steps;
+    int steps;
     bool isMoving;
 
     public float moveSpeed = 5.0f;
@@ -40,7 +40,6 @@ public class testedPlayer : MonoBehaviour
 
         while (steps > 0)
         {
-
             routePosition++;
             routePosition %= currentRoute.childNodeList.Count;
 
