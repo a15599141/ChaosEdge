@@ -8,11 +8,10 @@ public class openTradeStation : MonoBehaviour
     public void ToggleTrade()
     {
         if (stationStatus) {
-            this.transform.localPosition = new Vector3(1500, -650, 0);
+            
         }
         else
         {
-            this.transform.localPosition = new Vector3(-300, -650, 0);
         }
         stationStatus = !stationStatus;
     }

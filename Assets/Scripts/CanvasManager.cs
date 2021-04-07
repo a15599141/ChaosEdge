@@ -20,6 +20,7 @@ public class CanvasManager : MonoBehaviour
     }
 
     public GameObject canvasStation;
+    public GameObject canvasShop;
 
 
     // Start is called before the first frame update
@@ -41,5 +42,14 @@ public class CanvasManager : MonoBehaviour
     public void CloseCanvasStation()
     {
         canvasStation.SetActive(false);
+    }
+
+    public void OpenCanvasShop()
+    {
+        canvasShop.SetActive(true);
+    }
+    public void CloseCanvasShop()
+    {
+        canvasShop.SetActive(false);
     }
 }
