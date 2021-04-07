@@ -1954,7 +1954,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -43.69214, y: 281.40002}
+  m_AnchoredPosition: {x: -43.692017, y: 281.40002}
   m_SizeDelta: {x: -1289.3838, y: 416.18988}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &348816928
@@ -3452,7 +3452,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -43.69995, y: 187.19995}
+  m_AnchoredPosition: {x: -43.69983, y: 187.19995}
   m_SizeDelta: {x: -1289.3684, y: -622.6316}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &613202806
@@ -6843,7 +6843,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1057969547}
   serializedVersion: 6
-  lengthInSec: 5
+  lengthInSec: 10
   simulationSpeed: 1.9
   stopAction: 0
   cullingMode: 0
@@ -7087,7 +7087,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3.4
+      scalar: 5.16
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -7403,7 +7403,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 100
     size3D: 0
     rotation3D: 0
     gravityModifier:
@@ -18044,7 +18044,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -43.693115, y: 36.900024}
+  m_AnchoredPosition: {x: -43.692993, y: 36.900024}
   m_SizeDelta: {x: -1289.3837, y: 55.76111}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1925764334

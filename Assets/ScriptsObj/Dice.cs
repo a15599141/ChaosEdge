@@ -9,7 +9,6 @@ public class Dice : MonoBehaviour
     private Rigidbody diceRb;   //骰子刚体
 
     public Button rollButton;   //掷骰子按钮
-
     public TMP_Text roundText;  //游戏轮数显示器
     private int roundCount;     //游戏轮数计数器
 

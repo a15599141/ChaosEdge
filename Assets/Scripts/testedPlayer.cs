@@ -68,8 +68,5 @@ public class TestedPlayer : MonoBehaviour
     public void DealWithRoute()
     {
         CanvasManager.Instance.ToCanvasStation();
-
-        
-
     }
 }
