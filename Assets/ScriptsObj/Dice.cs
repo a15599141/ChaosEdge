@@ -17,16 +17,19 @@ public class Dice : MonoBehaviour
     Transform[] sixFaces = new Transform[6];// 声明数组, 存放色子的六个面坐标
     Transform upFace;
     public Vector3 currentPosition;
-    private int rotateLimit = 30;   //骰子转动速度
-    private int randomRotation; // 骰子转动随机值
+    private int rotateTime = 30;   //骰子转动时间
+    private float rotateSpeed = 100000.0f; // 骰子转动速度
     public int diceNumber; //骰子点数
 
+    RemoteEventAgent remoteEventAgent;
     SyncPropertyAgent syncPropertyAgent;
 
     // Start is called before the first frame update
     void Start()
     {
         diceRb = GetComponent<Rigidbody>(); // 获取刚体属性
+
+        remoteEventAgent = GetComponent<RemoteEventAgent>();
         syncPropertyAgent = GetComponent<SyncPropertyAgent>();
     }
 
@@ -38,6 +41,7 @@ public class Dice : MonoBehaviour
 
     public void RollDiceOnClick() 
     {
+        //remoteEventAgent.Invoke("roll");
         roundCount++; //回合数加1
         roundText.text = "ROUND " + roundCount.ToString();//更新回合数
         rollButton.interactable = false; // 禁用摇色子按钮
@@ -47,10 +51,9 @@ public class Dice : MonoBehaviour
     private IEnumerator RollDice()
     {
         //转动骰子
-        for (int i = 0; i < rotateLimit; i++)
+        for (int i = 0; i < rotateTime; i++)
         {
-            randomRotation = Random.Range(rotateLimit, -rotateLimit);
-            transform.Rotate(new Vector3(transform.rotation.x + randomRotation, transform.rotation.y + randomRotation, transform.rotation.z + randomRotation));
+            transform.Rotate(new Vector3(Time.deltaTime * rotateSpeed, Time.deltaTime * rotateSpeed, Time.deltaTime * rotateSpeed));
             yield return new WaitForSeconds(0.02f);
         }
         //每0.05秒验证一次骰子是否依旧在转动

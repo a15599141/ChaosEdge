@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4548415618089019842}
   - component: {fileID: -4249684972526975513}
   - component: {fileID: 2192588186521682900}
+  - component: {fileID: 6277473316419180813}
   m_Layer: 0
   m_Name: Player4
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3791456206205653273}
-  m_LocalRotation: {x: 0.013263019, y: -0, z: -0, w: 0.9999121}
+  m_LocalRotation: {x: 0.013264088, y: 0, z: 0, w: 0.999912}
   m_LocalPosition: {x: 11.445572, y: -76.1099, z: -74.14374}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_Children: []
@@ -134,34 +135,34 @@ MonoBehaviour:
     smoothLevel: 2
     snapDistance: 2
     readFunction: 0
-    bandwidth: 12
-    padding: 0
+    bandwidth: 5
+    padding: 7
     pos_x_setting:
       enabled: 1
-      min: -300
-      max: 300
+      min: -10
+      max: 10
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     pos_y_setting:
       enabled: 1
-      min: -300
-      max: 300
+      min: -10
+      max: 10
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     pos_z_setting:
       enabled: 1
-      min: -300
-      max: 300
+      min: -10
+      max: 10
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     rot_x_setting:
-      enabled: 1
+      enabled: 0
       min: -300
       max: 300
       resolution: 3
@@ -169,7 +170,7 @@ MonoBehaviour:
       minInt: -300
       maxInt: 300
     rot_y_setting:
-      enabled: 1
+      enabled: 0
       min: -300
       max: 300
       resolution: 3
@@ -177,7 +178,7 @@ MonoBehaviour:
       minInt: -300
       maxInt: 300
     rot_z_setting:
-      enabled: 1
+      enabled: 0
       min: -300
       max: 300
       resolution: 3
@@ -219,3 +220,20 @@ MonoBehaviour:
   syncTransFormFoldout: 1
   syncAnimatorFoldout: 0
   restoreState: 1
+--- !u!114 &6277473316419180813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3791456206205653273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2568e7180774bf45a5cbb9c1b1c0c99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentRoute: {fileID: 0}
+  dice: {fileID: 0}
+  gm: {fileID: 0}
+  routePosition: 0
+  moveSpeed: 5

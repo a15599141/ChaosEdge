@@ -38,15 +38,28 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("HomeScene");
     }
     // 游戏场景初始化
+    public void OnSpawnerReady(bool finishedSceneSetup, SceneSpawner sceneSpawner)
+    {
+        Debug.Log("OnSpawnerReady " + finishedSceneSetup);
+        if (!finishedSceneSetup)
+        {
+            if (NetworkClient.Instance.IsHost)
+            {
+                sceneSpawner.SpawnForPlayer(0, 0); //spawn for player 1
+            }
+            else sceneSpawner.SpawnForPlayer(1, 1); //spawn for player 2
+
+            //sceneSpawner.SpawnForPlayer(2, 2); //spawn for player 3
+           //sceneSpawner.SpawnForPlayer(3, 3); //spawn for player 4
+            sceneSpawner.HostFinishedSceneSetup();
+        }
+    }
     public void OnHostSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner) 
     {
         Debug.Log("OnHostSpawnerReady " + alreadySetup);
         if (!alreadySetup)
         {
-            sceneSpawner.SpawnForPlayer(0, 0); //spawn for player 1
-            sceneSpawner.SpawnForPlayer(1, 1); //spawn for player 2
-            sceneSpawner.SpawnForPlayer(2, 2); //spawn for player 3
-            sceneSpawner.SpawnForPlayer(3, 3); //spawn for player 4
+
             sceneSpawner.HostFinishedSceneSetup();
         }
     }
