@@ -12,7 +12,6 @@ public class Dice : MonoBehaviour
     public TMP_Text roundText;  //游戏轮数显示器
     private int roundCount;     //游戏轮数计数器
 
-    public bool moveAllowed;    //玩家可移动
 
     Transform[] sixFaces = new Transform[6];// 声明数组, 存放色子的六个面坐标
     Transform upFace;
@@ -62,7 +61,7 @@ public class Dice : MonoBehaviour
             if (diceRb.velocity.Equals(new Vector3(0.0f, 0.0f, 0.0f)))
             {
                 //Debug.Log("stop rolling");
-                moveAllowed = true;
+                PlayerManager.Instance.moveAllowed = true;
                 diceNumber = GetNum();
                 yield break;//结束协程
             }
@@ -91,7 +90,7 @@ public class Dice : MonoBehaviour
     /* -------- 联机向-------- */
     public void OnDiceTransformReady()
     {
-        Debug.Log("OnDiceTransformReady");
+        //Debug.Log("OnDiceTransformReady");
         // Get the current value of the "Dice Transform" SyncProperty.
         currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
         int version = syncPropertyAgent.GetPropertyWithName("diceTransform").version;
@@ -103,7 +102,7 @@ public class Dice : MonoBehaviour
     }
     public void OnDiceTransformChanged()
     {
-        Debug.Log("OnDiceTransformChanged");
+        //Debug.Log("OnDiceTransformChanged");
         // Update the hpSlider when player hp changes
         currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
         transform.position = currentPosition;

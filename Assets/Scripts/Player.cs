@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public int routePosition;//玩家所在格子位置
     int steps; //玩家需要移动的格子数
     bool isMoving; //判断玩家是否移动中
+    bool moveAllowed;//判断玩家是否可以开始移动
 
     public float moveSpeed = 5.0f;//移动速度
 
@@ -27,9 +28,9 @@ public class Player : MonoBehaviour
     {
         if (networkID.IsMine)
         {
-            if (dice.moveAllowed && !isMoving)
+            if (moveAllowed && !isMoving)
             {
-                dice.moveAllowed = false;
+                moveAllowed = false;
                 steps = dice.diceNumber;
                 Debug.Log("dice number in player: " + steps);
                 StartCoroutine(PlayerMove());
