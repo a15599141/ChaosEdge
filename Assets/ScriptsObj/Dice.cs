@@ -10,12 +10,10 @@ public class Dice : MonoBehaviour
 
     public Button rollButton;   //掷骰子按钮
     public TMP_Text roundText;  //游戏轮数显示器
-    private int roundCount;     //游戏轮数计数器
-
+    public int roundCount;     //游戏轮数计数器
 
     Transform[] sixFaces = new Transform[6];// 声明数组, 存放色子的六个面坐标
     Transform upFace;
-    public Vector3 currentPosition;
     private int rotateTime = 30;   //骰子转动时间
     private float rotateSpeed = 100000.0f; // 骰子转动速度
     public int diceNumber; //骰子点数
@@ -27,7 +25,6 @@ public class Dice : MonoBehaviour
     void Start()
     {
         diceRb = GetComponent<Rigidbody>(); // 获取刚体属性
-
         remoteEventAgent = GetComponent<RemoteEventAgent>();
         syncPropertyAgent = GetComponent<SyncPropertyAgent>();
     }
@@ -35,7 +32,7 @@ public class Dice : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
     public void RollDiceOnClick() 
@@ -92,7 +89,7 @@ public class Dice : MonoBehaviour
     {
         //Debug.Log("OnDiceTransformReady");
         // Get the current value of the "Dice Transform" SyncProperty.
-        currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
+        //currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
         int version = syncPropertyAgent.GetPropertyWithName("diceTransform").version;
        
         if (version == 0)
@@ -104,7 +101,7 @@ public class Dice : MonoBehaviour
     {
         //Debug.Log("OnDiceTransformChanged");
         // Update the hpSlider when player hp changes
-        currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
-        transform.position = currentPosition;
+       // currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
+        //transform.position = currentPosition;
     }
 }

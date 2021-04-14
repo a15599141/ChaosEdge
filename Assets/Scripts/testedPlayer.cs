@@ -7,7 +7,7 @@ public class TestedPlayer : MonoBehaviour
     public int routePosition;//玩家所在格子位置
 
     //玩家属性
-    string name;
+    string id;
     public int energy;
     int hp;
     int atk;

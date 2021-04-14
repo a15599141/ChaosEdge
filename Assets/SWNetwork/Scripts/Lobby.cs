@@ -17,7 +17,7 @@ public class Lobby : MonoBehaviour
     int MAX_PLAYER_NUM = 4;
 
     public Text LobbyPing;
-    public InputField customPlayerIdField; // Button for entering custom playerId
+    public InputField customPlayerIdField; // InputField for entering custom playerId
     string playerName_; // Player entered name
     public Text playerNameText; // player name display in lobby
     public TMP_Text LobbyEntryTitle; // Game title in lobby entry
@@ -39,11 +39,6 @@ public class Lobby : MonoBehaviour
         NetworkClient.Lobby.OnLobbyConnectedEvent += Lobby_OnLobbyConncetedEvent;
 
         // allow player to register in Lobby Entry
-        customPlayerIdField.gameObject.SetActive(true);
-        EntryRegisterButton.gameObject.SetActive(true);
-        EntryBackHomeButton.gameObject.SetActive(true);
-        EnterLobbyButton.gameObject.SetActive(false);
-        gameRegionDrowDown.gameObject.SetActive(false);
         canvas.GetComponent<CanvasGroup>().alpha = 0;
 
     }
@@ -77,26 +72,39 @@ public class Lobby : MonoBehaviour
     {
         playerName_ = customPlayerIdField.text;
         EntryRegisterText.text = "Registering...";
-        if (playerName_ != null && playerName_.Length > 0)
+        EntryRegisterButton.interactable = false;
+        if (playerName_.Length > 0)
         {
             // use the user entered playerId to check into SocketWeaver. Make sure the PlayerId is unique.
             NetworkClient.Instance.CheckIn(playerName_, (bool ok, string error) =>
             {
-                if (!ok)
+                if (ok)
                 {
-                    Debug.LogError("Check-in failed: " + error);
-                    EntryRegisterText.text = "Register";
-                    return;
+                    playerNameText.text = playerName_;
+                    UpdateGameRegionDropdownOptions();
+                    // display region selection
+                    EnterLobbyButton.gameObject.SetActive(true);
+                    gameRegionDrowDown.gameObject.SetActive(true);
+                    customPlayerIdField.gameObject.SetActive(false);
+                    EntryRegisterButton.gameObject.SetActive(false);
+                    EntryBackHomeButton.gameObject.SetActive(false);
                 }
-                playerNameText.text = playerName_;
-                UpdateGameRegionDropdownOptions();
+                else
+                {
+                    EntryRegisterText.text = "Register";
+                    EntryRegisterButton.interactable = true;
+                    Debug.LogError("Check-in failed: " + error);
+                }
+                
             });
         }
         else
         {
-            customPlayerIdField.Select();
             EntryRegisterText.text = "Register";
+            EntryRegisterButton.interactable = true;
+            customPlayerIdField.Select();
         }
+        
     }
     void UpdateGameRegionDropdownOptions()
     {
@@ -128,7 +136,6 @@ public class Lobby : MonoBehaviour
     }
     public void EnterLobby()
     {
-        EntryRegisterText.text = "Register";
         EnterLobbyButton.gameObject.SetActive(false);
         gameRegionDrowDown.gameObject.SetActive(false);
         LobbyEntryTitle.gameObject.SetActive(false);
@@ -145,6 +152,7 @@ public class Lobby : MonoBehaviour
                 // store the playerName
                 // playerName also used to register local player to the lobby server
                 playerName_ = playerName;
+                GUI.ChangingPlayerNameMessagePopup.SetActive(true);
                 NetworkClient.Instance.CheckIn(playerName, (bool successful, string error) =>
                 {
                     if (!successful)
@@ -153,6 +161,7 @@ public class Lobby : MonoBehaviour
                     }
                     else
                     {
+                        GUI.ChangingPlayerNameMessagePopup.SetActive(false);
                         playerNameText.text = playerName_;
                     }
                 });
@@ -262,24 +271,22 @@ public class Lobby : MonoBehaviour
     public void SendRoomMessage()
     {
         string message = GUI.messageRoomText.text;
-        Debug.Log("Send room message " + message);
         NetworkClient.Lobby.MessageRoom(message, (bool successful, SWLobbyError error) =>
         {
-            if (successful && message != "")
+            if (successful)
             {
-                Debug.Log("Sent room message");
-                string msg = "Sent to room: " + message;
-                GUI.AddRowForMessage(msg, null, null);
+                if(message.Length > 0)
+                {
+                    Debug.Log("Sent room message");
+                    string msg = "Sent to room: " + message;
+                    GUI.AddRowForMessage(msg, null, null);
+                }
+                else GUI.messageRoomText.Select();
             }
             else
             {
-                if (message == "") GUI.messageRoomText.Select();
-                else
-                {
-                    GUI.ShowSendRoomMessageErrorPopup();
-                    Debug.Log("Failed to send room message " + error);
-                }
-                
+                GUI.ShowSendRoomMessageErrorPopup();
+                Debug.Log("Failed to send room message " + error);
             }
         });
     }
@@ -445,7 +452,6 @@ public class Lobby : MonoBehaviour
         {
             Debug.Log("Failed to connect to room");
         }
-        GUI.StartingRoomMessagePopup.SetActive(false);
     }
 
     // lobby delegate events
@@ -459,18 +465,10 @@ public class Lobby : MonoBehaviour
             {
                 Debug.Log("Lobby registered " + reply);
                 GetRooms();
-                // display region selection
-                EnterLobbyButton.gameObject.SetActive(true);
-                gameRegionDrowDown.gameObject.SetActive(true);
-                customPlayerIdField.gameObject.SetActive(false);
-                EntryRegisterButton.gameObject.SetActive(false);
-                EntryBackHomeButton.gameObject.SetActive(false);
-                
             }
             else
             {
                 Debug.Log("Lobby failed to register " + error);
-                EntryRegisterText.text = "Register";
             }
         });
     } 

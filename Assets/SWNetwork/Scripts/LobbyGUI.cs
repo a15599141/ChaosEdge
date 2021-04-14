@@ -22,9 +22,11 @@ public class LobbyGUI : MonoBehaviour
     public GameObject newRoomPopup;
     public GameObject CreatingRoomMessagePopup;
     public GameObject StartingRoomMessagePopup;
+    public GameObject ChangingPlayerNameMessagePopup;
 
     public InputField playerNameText;
     public GameObject registerPlayerPopup;
+    
 
     public InputField playerIdText;
     public InputField messagePlayerText;
@@ -209,9 +211,9 @@ public class LobbyGUI : MonoBehaviour
 
     public void HandleCreateRoomOK()
     {
-        CreatingRoomMessagePopup.SetActive(true);
         if (newRoomText.text.Length > 0)
         {
+            CreatingRoomMessagePopup.SetActive(true);
             newRoomPopup.SetActive(false);
             if (newGamePopupCloseCallback != null)
             {
@@ -220,7 +222,8 @@ public class LobbyGUI : MonoBehaviour
         }
         else
         {
-            // must enter a game name
+            // must enter a room name
+            newRoomText.Select();
             Debug.LogWarning("Game name is empty.");
         }
 
@@ -261,6 +264,7 @@ public class LobbyGUI : MonoBehaviour
         else
         {
             // must enter a player name
+            playerNameText.Select();
             Debug.LogWarning("Player name is empty.");
         }
     }

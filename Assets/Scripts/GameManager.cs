@@ -44,15 +44,11 @@ public class GameManager : MonoBehaviour
         Debug.Log("OnSpawnerReady " + finishedSceneSetup);
         if (!finishedSceneSetup)
         {
-            if (NetworkClient.Instance.IsHost)
-            {
-                sceneSpawner.SpawnForPlayer(0, 0); //spawn for player 1
-            }
-            else sceneSpawner.SpawnForPlayer(1, 1); //spawn for player 2
-
-            //sceneSpawner.SpawnForPlayer(2, 2); //spawn for player 3
-           //sceneSpawner.SpawnForPlayer(3, 3); //spawn for player 4
-            sceneSpawner.HostFinishedSceneSetup();
+            sceneSpawner.SpawnForPlayer(0, 0); //spawn for player 1
+            sceneSpawner.SpawnForPlayer(1, 1); //spawn for player 2
+            sceneSpawner.SpawnForPlayer(2, 2); //spawn for player 3
+            sceneSpawner.SpawnForPlayer(3, 3); //spawn for player 4
+            sceneSpawner.PlayerFinishedSceneSetup();
         }
     }
     public void OnHostSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner) 
@@ -60,7 +56,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("OnHostSpawnerReady " + alreadySetup);
         if (!alreadySetup)
         {
-
+           
             sceneSpawner.HostFinishedSceneSetup();
         }
     }
