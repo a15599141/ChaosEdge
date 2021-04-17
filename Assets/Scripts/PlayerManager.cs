@@ -15,6 +15,7 @@ public class PlayerManager : MonoBehaviour
     public int currPlayerIndex;
 
     int steps; //当前玩家需要移动的格子数
+    int tempSteps;//缓存剩余格子数
     bool isMoving; //判断当前玩家是否移动中
 
     float moveSpeed = 10.0f;
@@ -57,7 +58,7 @@ public class PlayerManager : MonoBehaviour
         currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();
 
 
-
+        //更新UI界面玩家信息
         CanvasManager.Instance.UpdatePlayerPanel();
 
     }
@@ -72,6 +73,8 @@ public class PlayerManager : MonoBehaviour
             //Debug.Log("dice number: " + steps);
             StartCoroutine(PlayerMove());
         }
+
+        
     }
 
     IEnumerator PlayerMove()
@@ -95,14 +98,27 @@ public class PlayerManager : MonoBehaviour
             //移动完毕停顿
             yield return new WaitForSeconds(0.1f);
             steps--;
-        }
 
+
+            //处理玩家遭遇战斗
+            if (currPlayer.engagement)
+            {
+                
+                //缓存剩余格子数
+                tempSteps = steps;
+
+                //停止当前移动
+                steps = 0;
+
+                //选择是否战斗
+                CanvasManager.Instance.OpenCanvasEngagement();
+            }
+        }
         isMoving = false;
 
         //处理格子事件
-        DealWithRoute();
-
-
+        if (!currPlayer.engagement)
+            DealWithRoute();
     }
 
     bool MoveToNextNode(Vector3 goal)
@@ -118,8 +134,16 @@ public class PlayerManager : MonoBehaviour
 
     public void EndTheTurn()
     {
-        currPlayerIndex = (currPlayerIndex + 1) % playerNumber;
+        //currPlayerIndex = (currPlayerIndex + 1) % playerNumber;
+        currPlayerIndex = 0;
         currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();
         CanvasManager.Instance.UpdatePlayerPanel();
+    }
+
+    public void BattleCancel()
+    {
+        currPlayer.engagement = false;
+        steps = tempSteps;
+        StartCoroutine(PlayerMove());
     }
 }

@@ -22,6 +22,8 @@ public class CanvasManager : MonoBehaviour
 
     public GameObject canvasStation;
     public GameObject canvasShop;
+    public GameObject canvasEngagement;
+    public GameObject canvasBattle;
     public GameObject[] playerPanels;
 
 
@@ -54,15 +56,39 @@ public class CanvasManager : MonoBehaviour
         canvasShop.SetActive(false);
     }
 
+    public void OpenCanvasEngagement()
+    {
+        canvasEngagement.SetActive(true);
+    }
+
+    public void CloseCanvasEngagement()
+    {
+        canvasEngagement.SetActive(false);
+    }
+
+    public void OpenBattle()
+    {
+        canvasBattle.SetActive(true);
+    }
+
+    public void closeBattle()
+    {
+        canvasBattle.SetActive(false);
+    }
+
     public void UpdatePlayerPanel()
     {
         int panelIndex = 0;
         foreach (GameObject item in PlayerManager.Instance.playerObjects)
         {
+            TestedPlayer player = item.GetComponent<TestedPlayer>();
             playerPanels[panelIndex].transform.GetChild(2).GetComponent<Text>().text 
-                = "Energy: "+ item.GetComponent<TestedPlayer>().energy.ToString();
-
+                = "Energy: "+ player.energy.ToString();
+            playerPanels[panelIndex].transform.GetChild(3).GetComponent<Text>().text
+                = "HP: " + player.getCurrHP() + "/" +player.getMaxHP();
             panelIndex++;
         }
     }
+
+
 }
