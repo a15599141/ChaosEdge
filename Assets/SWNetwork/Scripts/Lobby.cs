@@ -257,13 +257,13 @@ public class Lobby : MonoBehaviour
                         GetRooms();
                         // refresh the player list
                         GetPlayersInCurrentRoom();
-                        GUI.CreatingRoomMessagePopup.SetActive(false);
                     }
                     else
                     {
                         GUI.ShowCreateRoomErrorPopup();
                         Debug.Log("Failed to create room " + error);
                     }
+                    GUI.CreatingRoomMessagePopup.SetActive(false);
                 });
             }
         });

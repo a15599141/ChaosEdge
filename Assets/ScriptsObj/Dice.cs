@@ -32,14 +32,13 @@ public class Dice : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        roundText.text = "ROUND " + roundCount.ToString();//更新回合数
     }
 
     public void RollDiceOnClick() 
     {
         //remoteEventAgent.Invoke("roll");
         roundCount++; //回合数加1
-        roundText.text = "ROUND " + roundCount.ToString();//更新回合数
         rollButton.interactable = false; // 禁用摇色子按钮
         StartCoroutine("RollDice");//启动骰子协程
     }

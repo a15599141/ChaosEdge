@@ -95,7 +95,6 @@ public class LobbyGUI : MonoBehaviour
             RemoveChild(messageList.transform);
             currentMessageRowCount--;
         }
-
         currentMessageRowCount++;
         AddRowToTable(messageList.transform, messageRowPrefab, title, objectId, callback);
         messageRoomText.text = "";
@@ -125,7 +124,6 @@ public class LobbyGUI : MonoBehaviour
         Destroy(messageList.gameObject);
         currentMessageRowCount = 0;
     }
-
     public void ShowBackToMenuPopup()
     {
         BackToMenuPopup.SetActive(true);
@@ -208,7 +206,6 @@ public class LobbyGUI : MonoBehaviour
     {
         BackToMenuPopup.SetActive(false);
     }
-
     public void HandleCreateRoomOK()
     {
         if (newRoomText.text.Length > 0)
@@ -236,7 +233,6 @@ public class LobbyGUI : MonoBehaviour
             newGamePopupCloseCallback(false, null);
         }
     }
-
     public void HandleRegisterPlayerOK()
     {
         if (playerNameText.text.Length > 0)
@@ -276,7 +272,6 @@ public class LobbyGUI : MonoBehaviour
             registerPlayerPopupCloseCallback(false, null);
         }
     }
-
     public void HandleMessagePlayerOK()
     {
         if (playerIdText.text.Length > 0)
@@ -300,7 +295,6 @@ public class LobbyGUI : MonoBehaviour
             messagePlayerPopupCloseCallback(false, null, null);
         }
     }
-
     public void HandleCreateRoomErrorOk()
     {
         CreateRoomErrorPopup.SetActive(false);
