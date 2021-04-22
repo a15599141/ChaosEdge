@@ -26,7 +26,6 @@ public class LobbyGUI : MonoBehaviour
 
     public InputField playerNameText;
     public GameObject registerPlayerPopup;
-    
 
     public InputField playerIdText;
     public InputField messagePlayerText;
