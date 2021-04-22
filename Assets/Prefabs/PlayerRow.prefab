@@ -224,6 +224,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f1df4244f2e3e4cad47d113f07b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: {fileID: 6842924651259361694}
+  roomName: {fileID: 6842924651259361694}
+  hostName: {fileID: 0}
+  playerCount: {fileID: 0}
   title: 
   objectId: 

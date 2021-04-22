@@ -43,10 +43,9 @@ public class GameManager : MonoBehaviour
         Debug.Log("OnSpawnerReady " + finishedSceneSetup);
         if (!finishedSceneSetup)
         {
-            sceneSpawner.SpawnForPlayer(0, 0); //spawn for player 1
-            sceneSpawner.SpawnForPlayer(1, 1); //spawn for player 2
-            sceneSpawner.SpawnForPlayer(2, 2); //spawn for player 3
-            sceneSpawner.SpawnForPlayer(3, 3); //spawn for player 4
+            int spawnPointIndex = Random.Range(0, 3);
+            int playerPrefabIndex = Random.Range(0, 3);
+            sceneSpawner.SpawnForPlayer(playerPrefabIndex, spawnPointIndex);
             sceneSpawner.PlayerFinishedSceneSetup();
         }
     }
@@ -55,7 +54,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("OnHostSpawnerReady " + alreadySetup);
         if (!alreadySetup)
         {
-           
+            
             sceneSpawner.HostFinishedSceneSetup();
         }
     }

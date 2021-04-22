@@ -17,7 +17,6 @@ public class TestedPlayer : MonoBehaviour
     int evo;//飞船闪避
     int bag;//飞船格子大小
 
-
     private void Awake()
     {
         engagement = false;

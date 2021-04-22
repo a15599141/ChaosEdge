@@ -10,14 +10,16 @@ public class TableRow : MonoBehaviour
     /// </summary>
     public event SelectedHandler OnSelected;
 
-    public Text text;
+    public Text roomName;
+    public Text hostName;
+    public Text playerCount;
     public string title;
     public string objectId;
 
     public void SetTitle(string title)
     {
         this.title = title;
-        text.text = this.title;
+        roomName.text = this.title;
     }
 
     public void SetObjectId(string objectId)

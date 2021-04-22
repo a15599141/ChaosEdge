@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 510455834542534614}
   - component: {fileID: 6318962160345454305}
   - component: {fileID: 1017338575990224080}
+  - component: {fileID: 418420163}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Untagged
@@ -134,28 +135,28 @@ MonoBehaviour:
     smoothLevel: 2
     snapDistance: 2
     readFunction: 0
-    bandwidth: 5
-    padding: 7
+    bandwidth: 6
+    padding: 0
     pos_x_setting:
       enabled: 1
-      min: -10
-      max: 10
+      min: -300
+      max: 300
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     pos_y_setting:
       enabled: 1
-      min: -10
-      max: 10
+      min: -300
+      max: 300
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     pos_z_setting:
       enabled: 1
-      min: -10
-      max: 10
+      min: -300
+      max: 300
       resolution: 3
       valueType: 0
       minInt: -300
@@ -219,3 +220,18 @@ MonoBehaviour:
   syncTransFormFoldout: 1
   syncAnimatorFoldout: 0
   restoreState: 1
+--- !u!114 &418420163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114076231986008143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cf3067bedde90e44978e8e146dcf456, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  routePosition: 0
+  engagement: 0
+  energy: 0

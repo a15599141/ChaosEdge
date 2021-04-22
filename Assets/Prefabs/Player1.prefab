@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1333915942367226286}
   - component: {fileID: 4976545934443266219}
   - component: {fileID: 5421761283043973129}
+  - component: {fileID: 2719496004705405203}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Untagged
@@ -62,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 20aea8324b904e5479790b1ee7044a86, type: 2}
+  - {fileID: 2100000, guid: 350002144475942468c4e18b7962b7d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -134,28 +135,28 @@ MonoBehaviour:
     smoothLevel: 2
     snapDistance: 2
     readFunction: 0
-    bandwidth: 5
-    padding: 7
+    bandwidth: 6
+    padding: 0
     pos_x_setting:
       enabled: 1
-      min: -10
-      max: 10
+      min: -300
+      max: 300
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     pos_y_setting:
       enabled: 1
-      min: -10
-      max: 10
+      min: -300
+      max: 300
       resolution: 3
       valueType: 0
       minInt: -300
       maxInt: 300
     pos_z_setting:
       enabled: 1
-      min: -10
-      max: 10
+      min: -300
+      max: 300
       resolution: 3
       valueType: 0
       minInt: -300
@@ -219,3 +220,18 @@ MonoBehaviour:
   syncTransFormFoldout: 1
   syncAnimatorFoldout: 0
   restoreState: 1
+--- !u!114 &2719496004705405203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8752970413094683721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cf3067bedde90e44978e8e146dcf456, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  routePosition: 0
+  engagement: 0
+  energy: 0

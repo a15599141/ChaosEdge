@@ -172,22 +172,20 @@ public class Lobby : MonoBehaviour
     {
         Debug.Log("OnRoomSelected: " + roomId);
         // Join the selected room
-        
-            NetworkClient.Lobby.JoinRoom(roomId, (successful, reply, error) =>
-            {
-                if (successful)
-                {
-                    Debug.Log("Joined room " + reply);
-                    // refresh the player list
-                    GetPlayersInCurrentRoom();
-                }
-                else
-                {
-                    GUI.ShowJoinRoomErrorPopup();
-                    Debug.Log("Failed to Join room " + error);
-                }
-            });
-
+        NetworkClient.Lobby.JoinRoom(roomId, (successful, reply, error) =>
+        {
+             if (successful)
+             {
+                 Debug.Log("Joined room " + reply);
+                 // refresh the player list
+                 GetPlayersInCurrentRoom();
+             }
+             else
+             {
+                 GUI.ShowJoinRoomErrorPopup();
+                 Debug.Log("Failed to Join room " + error);
+             }
+        });
     }
     public void GetPlayersInCurrentRoom()
     {
@@ -204,7 +202,6 @@ public class Lobby : MonoBehaviour
                 {
                     playersDict_[player.id] = player.GetCustomDataString();
                 }
-
                 // fetch the room custom data.
                 GetRoomCustomData();
             }
