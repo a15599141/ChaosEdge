@@ -18,6 +18,7 @@ public class Dice : MonoBehaviour
     private float rotateSpeed = 100000.0f; // 骰子转动速度
     public int diceNumber; //骰子点数
 
+    NetworkID networkID;
     RemoteEventAgent remoteEventAgent;
     SyncPropertyAgent syncPropertyAgent;
 
@@ -25,6 +26,7 @@ public class Dice : MonoBehaviour
     void Start()
     {
         diceRb = GetComponent<Rigidbody>(); // 获取刚体属性
+        networkID = GetComponent<NetworkID>();
         remoteEventAgent = GetComponent<RemoteEventAgent>();
         syncPropertyAgent = GetComponent<SyncPropertyAgent>();
     }
@@ -32,15 +34,19 @@ public class Dice : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         roundText.text = "ROUND " + roundCount.ToString();//更新回合数
     }
 
     public void RollDiceOnClick() 
     {
-        //remoteEventAgent.Invoke("roll");
-        roundCount++; //回合数加1
-        rollButton.interactable = false; // 禁用摇色子按钮
-        StartCoroutine("RollDice");//启动骰子协程
+        if(networkID.IsMine)
+        {
+            roundCount++; //回合数加1
+            rollButton.interactable = false; // 禁用摇色子按钮
+            StartCoroutine("RollDice");//启动骰子协程
+        }
+       
     }
     //协程控制骰子转动
     private IEnumerator RollDice()

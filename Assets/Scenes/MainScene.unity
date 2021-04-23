@@ -13703,19 +13703,7 @@ MonoBehaviour:
         m_CallState: 2
   OnHostReady:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2086182714}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: OnHostSpawnerReady
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1562149005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24755,7 +24743,7 @@ MonoBehaviour:
     enabled: 1
     foldout: 1
     bandwidth: 2
-    padding: 4
+    padding: 3
     editorName: Dice
     uncompressedSyncFields: []
     syncFields:
@@ -24776,6 +24764,15 @@ MonoBehaviour:
       minInt: -1
       maxInt: 300
       fieldInfoName: roundCount
+      isProperty: 0
+    - enabled: 1
+      min: -300
+      max: 300
+      resolution: 3
+      valueType: 2
+      minInt: -300
+      maxInt: 300
+      fieldInfoName: RollButtonEnable
       isProperty: 0
     syncVector2Fields: []
     syncVector3Fields: []

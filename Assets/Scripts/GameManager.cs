@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
         {
             int spawnPointIndex = Random.Range(0, 3);
             int playerPrefabIndex = Random.Range(0, 3);
+
             sceneSpawner.SpawnForPlayer(playerPrefabIndex, spawnPointIndex);
             sceneSpawner.PlayerFinishedSceneSetup();
         }
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("OnHostSpawnerReady " + alreadySetup);
         if (!alreadySetup)
         {
+           
             
             sceneSpawner.HostFinishedSceneSetup();
         }
