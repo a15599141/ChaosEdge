@@ -34,22 +34,18 @@ public class Dice : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        roundText.text = "ROUND " + roundCount.ToString();//更新回合数
+        roundText.text = "ROUND " + roundCount.ToString(); //更新回合数
     }
 
     public void RollDiceOnClick() 
     {
-        if(networkID.IsMine)
-        {
-            roundCount++; //回合数加1
-            rollButton.interactable = false; // 禁用摇色子按钮
-            StartCoroutine("RollDice");//启动骰子协程
-        }
-       
+         Debug.Log("i am host");
+         roundCount++; //回合数加1
+         rollButton.interactable = false; // 禁用摇色子按钮
+         StartCoroutine(RollDice());//启动骰子协程       
     }
     //协程控制骰子转动
-    private IEnumerator RollDice()
+    IEnumerator RollDice()
     {
         //转动骰子
         for (int i = 0; i < rotateTime; i++)

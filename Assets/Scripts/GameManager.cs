@@ -55,8 +55,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("OnHostSpawnerReady " + alreadySetup);
         if (!alreadySetup)
         {
-           
-            
             sceneSpawner.HostFinishedSceneSetup();
         }
     }

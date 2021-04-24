@@ -2669,7 +2669,7 @@ GameObject:
   m_Component:
   - component: {fileID: 243309224}
   m_Layer: 0
-  m_Name: '***********Object*************'
+  m_Name: '***********Objects*************'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24764,15 +24764,6 @@ MonoBehaviour:
       minInt: -1
       maxInt: 300
       fieldInfoName: roundCount
-      isProperty: 0
-    - enabled: 1
-      min: -300
-      max: 300
-      resolution: 3
-      valueType: 2
-      minInt: -300
-      maxInt: 300
-      fieldInfoName: RollButtonEnable
       isProperty: 0
     syncVector2Fields: []
     syncVector3Fields: []
