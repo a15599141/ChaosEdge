@@ -6,16 +6,12 @@ using SWNetwork;
 
 public class Dice : MonoBehaviour
 {
-    private Rigidbody diceRb;   //骰子刚体
-
     public Button rollButton;   //掷骰子按钮
     public TMP_Text roundText;  //游戏轮数显示器
     public int roundCount;     //游戏轮数计数器
 
     Transform[] sixFaces = new Transform[6];// 声明数组, 存放色子的六个面坐标
     Transform upFace;
-    private int rotateTime = 30;   //骰子转动时间
-    private float rotateSpeed = 100000.0f; // 骰子转动速度
     public int diceNumber; //骰子点数
 
     NetworkID networkID;
@@ -25,7 +21,6 @@ public class Dice : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        diceRb = GetComponent<Rigidbody>(); // 获取刚体属性
         networkID = GetComponent<NetworkID>();
         remoteEventAgent = GetComponent<RemoteEventAgent>();
         syncPropertyAgent = GetComponent<SyncPropertyAgent>();
@@ -35,32 +30,36 @@ public class Dice : MonoBehaviour
     void Update()
     {
         roundText.text = "ROUND " + roundCount.ToString(); //更新回合数
+        if (GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName(diceNumber.ToString())) //如果骰子停止旋转
+        {
+            GetComponent<Animator>().Play("idle" + diceNumber.ToString(), 0); //播放骰子闲置动画
+            PlayerManager.Instance.moveAllowed = true;
+        }
     }
 
     public void RollDiceOnClick() 
     {
-         Debug.Log("i am host");
-         roundCount++; //回合数加1
-         rollButton.interactable = false; // 禁用摇色子按钮
-         StartCoroutine(RollDice());//启动骰子协程       
+        roundCount++; //回合数加1
+        rollButton.interactable = false; // 禁用摇色子按钮
+        diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
+        Debug.Log("diceNumber: "+ diceNumber);
+        for (int i=1; i<7; i++)
+        {
+            if (i == diceNumber)  GetComponent<Animator>().Play("Rotate to "+diceNumber.ToString(), 0);// 根据点数播放骰子相应动画
+        }
+        //StartCoroutine(RollDice());      // 启动骰子协程  
     }
     //协程控制骰子转动
-    IEnumerator RollDice()
+    /*IEnumerator RollDice()
     {
-        //转动骰子
-        for (int i = 0; i < rotateTime; i++)
-        {
-            transform.Rotate(new Vector3(Time.deltaTime * rotateSpeed, Time.deltaTime * rotateSpeed, Time.deltaTime * rotateSpeed));
-            yield return new WaitForSeconds(0.02f);
-        }
         //每0.05秒验证一次骰子是否依旧在转动
         while (true)
         {
-            if (diceRb.velocity.Equals(new Vector3(0.0f, 0.0f, 0.0f)))
+            if (GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName(diceNumber.ToString()))
             {
                 //Debug.Log("stop rolling");
+                GetComponent<Animator>().Play("idle" + diceNumber.ToString(), 0);
                 PlayerManager.Instance.moveAllowed = true;
-                diceNumber = GetNum();
                 yield break;//结束协程
             }
             else
@@ -69,7 +68,7 @@ public class Dice : MonoBehaviour
                 yield return new WaitForSeconds(0.05f);
             }
         }
-    }
+    }*/
     public int GetNum()
     {
         upFace = transform.GetChild(0); // 初始化朝上的面 
