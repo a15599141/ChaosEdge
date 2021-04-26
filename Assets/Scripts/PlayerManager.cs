@@ -103,22 +103,25 @@ public class PlayerManager : MonoBehaviour
             //处理玩家遭遇战斗
             if (currPlayer.engagement)
             {
-                
-                //缓存剩余格子数
-                tempSteps = steps;
-
-                //停止当前移动
-                steps = 0;
-
-                //选择是否战斗
-                CanvasManager.Instance.OpenCanvasEngagement();
+                tempSteps = steps;//缓存剩余格子数
+                steps = 0;//停止当前移动
+                CanvasManager.Instance.IsConfirm(ConfirmType.Battle);//选择是否战斗
+            }
+            else if (currPlayer.onTradeStation)
+            {
+                tempSteps = steps;//缓存剩余格子数
+                steps = 0;//停止当前移动
+                CanvasManager.Instance.IsConfirm(ConfirmType.TradeStation);//选择是否进入商店
             }
         }
-        isMoving = false;
+        
 
         //处理格子事件
-        if (!currPlayer.engagement)
-            DealWithRoute();
+        if (!currPlayer.engagement&&!currPlayer.onTradeStation)
+        {
+            CanvasManager.Instance.IsConfirm(ConfirmType.Construction);
+        }
+        isMoving = false;
     }
 
     bool MoveToNextNode(Vector3 goal)
@@ -126,11 +129,6 @@ public class PlayerManager : MonoBehaviour
         return goal != (currPlayer.transform.position = Vector3.MoveTowards(currPlayer.transform.position, goal, moveSpeed * Time.deltaTime));
     }
 
-    //格子交互
-    public void DealWithRoute()
-    {
-        CanvasManager.Instance.ToCanvasStation();
-    }
 
     public void EndTheTurn()
     {
@@ -138,12 +136,16 @@ public class PlayerManager : MonoBehaviour
         currPlayerIndex = 0;
         currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();
         CanvasManager.Instance.UpdatePlayerPanel();
+        dice.rollButton.interactable = true;//释放按钮
+        currPlayer.onTradeStation = false;
     }
 
     public void BattleCancel()
     {
         currPlayer.engagement = false;
+        currPlayer.onTradeStation = false;
         steps = tempSteps;
+        tempSteps = 0;
         StartCoroutine(PlayerMove());
     }
 }
