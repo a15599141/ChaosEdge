@@ -17,6 +17,8 @@ public class TestedPlayer : MonoBehaviour
     int evo;//飞船闪避
     int bag;//飞船格子大小
 
+    NetworkID networkID;
+
     private void Awake()
     {
         engagement = false;
@@ -32,6 +34,7 @@ public class TestedPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        networkID = GetComponent<NetworkID>();
     }
     // Update is called once per frame
     void Update()

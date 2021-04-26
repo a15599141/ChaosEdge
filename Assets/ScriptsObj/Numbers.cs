@@ -16,7 +16,7 @@ public class Numbers : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        DiceFaceUpNum = Dice.GetComponent<Dice>().GetNum();
+        /*DiceFaceUpNum = Dice.GetComponent<Dice>().GetNum();
         setAllFalse();
         if (DiceFaceUpNum == 1)
         {
@@ -41,7 +41,7 @@ public class Numbers : MonoBehaviour
         if (DiceFaceUpNum == 6)
         {
             Num6.SetActive(true);
-        }
+        }*/
     }
 
     void setAllFalse()

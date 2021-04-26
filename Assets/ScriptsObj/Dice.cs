@@ -33,20 +33,23 @@ public class Dice : MonoBehaviour
         if (GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName(diceNumber.ToString())) //如果骰子停止旋转
         {
             GetComponent<Animator>().Play("idle" + diceNumber.ToString(), 0); //播放骰子闲置动画
-            PlayerManager.Instance.moveAllowed = true;
+            PlayerManager.Instance.moveAllowed = true; // 允许玩家移动
         }
     }
 
     public void RollDiceOnClick() 
     {
-        roundCount++; //回合数加1
-        rollButton.interactable = false; // 禁用摇色子按钮
-        diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
-        Debug.Log("diceNumber: "+ diceNumber);
-        for (int i=1; i<7; i++)
-        {
-            if (i == diceNumber)  GetComponent<Animator>().Play("Rotate to "+diceNumber.ToString(), 0);// 根据点数播放骰子相应动画
-        }
+       
+            roundCount++; //回合数加1
+            rollButton.interactable = false; // 禁用摇色子按钮
+            diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
+            for (int i = 1; i < 7; i++)
+            {
+                if (i == diceNumber)
+                    GetComponent<Animator>().Play("Rotate to " + diceNumber.ToString(), 0);// 根据点数播放骰子相应动画
+            }
+        
+
         //StartCoroutine(RollDice());      // 启动骰子协程  
     }
     //协程控制骰子转动
@@ -69,7 +72,7 @@ public class Dice : MonoBehaviour
             }
         }
     }*/
-    public int GetNum()
+    /*public int GetNum()
     {
         upFace = transform.GetChild(0); // 初始化朝上的面 
         for (int i = 0; i < 6; i++) // 遍历六个面
@@ -82,7 +85,7 @@ public class Dice : MonoBehaviour
         }
         return int.Parse(upFace.name);//将朝上面 的名字 转化为int
         //Debug.Log("点数是： " + DiceFaceUpNum);
-    }
+    }*/
 
     /* -------- 联机向-------- */
     public void OnDiceTransformReady()

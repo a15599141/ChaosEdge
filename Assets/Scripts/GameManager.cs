@@ -40,14 +40,17 @@ public class GameManager : MonoBehaviour
     // 游戏场景初始化
     public void OnSpawnerReady(bool finishedSceneSetup, SceneSpawner sceneSpawner)
     {
-        Debug.Log("OnSpawnerReady " + finishedSceneSetup);
+        //Debug.Log("OnSpawnerReady " + finishedSceneSetup);
         if (!finishedSceneSetup)
         {
             int spawnPointIndex = Random.Range(0, 4);
             int playerPrefabIndex = Random.Range(0, 4);
 
             sceneSpawner.SpawnForPlayer(playerPrefabIndex, spawnPointIndex);
+            //sceneSpawner.SpawnForNonPlayer(0, 4);
+
             sceneSpawner.PlayerFinishedSceneSetup();
+            Debug.Log("OnSpawnerReady " + finishedSceneSetup);
         }
     }
     public void OnHostSpawnerReady(bool alreadySetup, SceneSpawner sceneSpawner) 
