@@ -6,6 +6,7 @@ public class TestedPlayer : MonoBehaviour
 {
     public int routePosition;//玩家所在格子位置
     public bool engagement; //玩家是否遭遇
+    public bool onTradeStation;//玩家是否在交易站
 
     //玩家属性
     string id;
@@ -23,8 +24,8 @@ public class TestedPlayer : MonoBehaviour
     {
         engagement = false;
         energy = 1000;
-        maxHP = 5;
-        currHP = 5;
+        maxHP = 10;
+        currHP = 10;
         atk = 1;
         def = 1;
         evo = 1;
@@ -46,6 +47,10 @@ public class TestedPlayer : MonoBehaviour
         {
             Debug.Log("battle incomming");
             engagement = true;
+        }else if (other.transform.CompareTag("TradeStation"))
+        {
+            Debug.Log("Shop arriving");
+            onTradeStation = true;
         }
     }
 
@@ -56,5 +61,14 @@ public class TestedPlayer : MonoBehaviour
     public string getCurrHP()
     {
         return currHP.ToString();
+    }
+
+    public string getATK()
+    {
+        return atk.ToString();
+    }
+    public string getDEF()
+    {
+        return def.ToString();
     }
 }
