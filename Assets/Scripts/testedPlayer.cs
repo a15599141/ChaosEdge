@@ -15,8 +15,8 @@ public class TestedPlayer : MonoBehaviour
     int currHP;//飞船当前血量
     int atk;//飞船攻击
     int def;//飞船防御
-    int evo;//飞船闪避
-    int bag;//飞船格子大小
+    //int evo;//飞船闪避
+    //int bag;//飞船格子大小
 
     NetworkID networkID;
 
@@ -28,8 +28,8 @@ public class TestedPlayer : MonoBehaviour
         currHP = 10;
         atk = 1;
         def = 1;
-        evo = 1;
-        bag = 16;
+        //evo = 1;
+        //bag = 16;
     }
 
     // Start is called before the first frame update

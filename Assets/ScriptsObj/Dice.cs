@@ -39,17 +39,10 @@ public class Dice : MonoBehaviour
 
     public void RollDiceOnClick() 
     {
-       
-            roundCount++; //回合数加1
-            rollButton.interactable = false; // 禁用摇色子按钮
-            diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
-            for (int i = 1; i < 7; i++)
-            {
-                if (i == diceNumber)
-                    GetComponent<Animator>().Play("Rotate to " + diceNumber.ToString(), 0);// 根据点数播放骰子相应动画
-            }
-        
-
+        roundCount++; //回合数加1
+        rollButton.interactable = false; // 禁用摇色子按钮
+        diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
+        GetComponent<Animator>().Play("Rotate to " + diceNumber.ToString(), 0);// 根据点数播放骰子相应动画
         //StartCoroutine(RollDice());      // 启动骰子协程  
     }
     //协程控制骰子转动
@@ -88,23 +81,5 @@ public class Dice : MonoBehaviour
     }*/
 
     /* -------- 联机向-------- */
-    public void OnDiceTransformReady()
-    {
-        //Debug.Log("OnDiceTransformReady");
-        // Get the current value of the "Dice Transform" SyncProperty.
-        //currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
-        int version = syncPropertyAgent.GetPropertyWithName("diceTransform").version;
-       
-        if (version == 0)
-        {
-            syncPropertyAgent.Modify("diceTransform", transform.position);
-        }
-    }
-    public void OnDiceTransformChanged()
-    {
-        //Debug.Log("OnDiceTransformChanged");
-        // Update the hpSlider when player hp changes
-       // currentPosition = syncPropertyAgent.GetPropertyWithName("diceTransform").GetVector3Value();
-        //transform.position = currentPosition;
-    }
+
 }

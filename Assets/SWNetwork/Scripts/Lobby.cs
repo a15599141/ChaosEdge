@@ -431,7 +431,7 @@ public class Lobby : MonoBehaviour
         {
             GUI.StartingRoomMessagePopup.SetActive(false);
             GUI.ShowStartRoomErrorPopup();
-            Debug.Log("Failed to connect to room");
+            Debug.Log("Only room onwer can start room");
         }
     }
     void ConnectToRoom()
@@ -447,6 +447,7 @@ public class Lobby : MonoBehaviour
         }
         else
         {
+            GUI.StartingRoomMessagePopup.SetActive(false);
             Debug.Log("Failed to connect to room");
         }
     }

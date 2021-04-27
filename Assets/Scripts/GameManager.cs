@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
             int spawnPointIndex = Random.Range(0, 4);
             int playerPrefabIndex = Random.Range(0, 4);
 
-            sceneSpawner.SpawnForPlayer(playerPrefabIndex, spawnPointIndex);
+            sceneSpawner.SpawnForPlayer(0, 0);
             //sceneSpawner.SpawnForNonPlayer(0, 4);
 
             sceneSpawner.PlayerFinishedSceneSetup();
