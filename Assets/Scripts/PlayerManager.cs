@@ -20,7 +20,6 @@ public class PlayerManager : MonoBehaviour
 
     float moveSpeed = 10.0f;
 
-
     //启动单例
     private static PlayerManager _instance;
 
@@ -73,8 +72,6 @@ public class PlayerManager : MonoBehaviour
             //Debug.Log("dice number: " + steps);
             StartCoroutine(PlayerMove());
         }
-
-        
     }
 
     IEnumerator PlayerMove()
