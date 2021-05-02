@@ -5,8 +5,9 @@ using SWNetwork;
 public class TestedPlayer : MonoBehaviour
 {
     public int routePosition;//玩家所在格子位置
-    public bool engagement; //玩家是否遭遇
-    public bool onTradeStation;//玩家是否在交易站
+    public bool isEngaging; //玩家是否遭遇
+    public bool isOnTradeStation;//玩家是否在交易站
+    public bool canConstructHere; //玩家是否可以在此建造
 
     //玩家属性
     string id;
@@ -18,11 +19,11 @@ public class TestedPlayer : MonoBehaviour
     //int evo;//飞船闪避
     //int bag;//飞船格子大小
 
-    NetworkID networkID;
-
     private void Awake()
     {
-        engagement = false;
+        isEngaging = false;
+        isOnTradeStation = false;
+        canConstructHere = false;
         energy = 1000;
         maxHP = 10;
         currHP = 10;
@@ -35,7 +36,7 @@ public class TestedPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        networkID = GetComponent<NetworkID>();
+  
     }
     // Update is called once per frame
     void Update()
@@ -43,17 +44,18 @@ public class TestedPlayer : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.CompareTag("Player"))
+        if (other.transform.CompareTag("TradeStation"))
+        {
+            Debug.Log("TradeStation arrived");
+            isOnTradeStation = true;
+        }
+        else if (other.transform.CompareTag("Player"))
         {
             Debug.Log("battle incomming");
-            engagement = true;
-        }else if (other.transform.CompareTag("TradeStation"))
-        {
-            Debug.Log("Shop arriving");
-            onTradeStation = true;
+            isEngaging = true;
         }
+       
     }
-
     public string getMaxHP()
     {
         return maxHP.ToString();

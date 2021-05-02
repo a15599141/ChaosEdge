@@ -6,7 +6,7 @@ using SWNetwork;
 
 public class DiceOnline : MonoBehaviour
 {
-    public GameObject dice;
+    public Dice dice;
     public Button rollButton;   //掷骰子按钮
     public TMP_Text roundText;  //游戏轮数显示器
     public int roundCount;     //游戏轮数计数器
@@ -25,8 +25,10 @@ public class DiceOnline : MonoBehaviour
         networkID = GetComponent<NetworkID>();
         remoteEventAgent = GetComponent<RemoteEventAgent>();
         syncPropertyAgent = GetComponent<SyncPropertyAgent>();
-        dice.SetActive(false);
+        dice = GameObject.Find("Dice").GetComponent<Dice>();
         rollButton = GameObject.Find("Canvas/RollButton").GetComponent<Button>();
+        roundText = GameObject.Find("Canvas/RoundText").GetComponent<TMP_Text>();
+        dice.gameObject.SetActive(false);
         rollButton.onClick.AddListener(RollDiceOnClick);
     }
 
@@ -43,10 +45,10 @@ public class DiceOnline : MonoBehaviour
 
     public void RollDiceOnClick() 
     {
-        //roundCount++; //回合数加1
-        //roundText.text = "ROUND " + roundCount.ToString(); //更新回合数
         if (networkID.IsMine)
         {
+            roundCount++; //回合数加1
+            roundText.text = "ROUND " + roundCount.ToString(); //更新回合数
             rollButton.interactable = false; // 禁用摇色子按钮
             diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
             GetComponent<Animator>().Play("Rotate to " + diceNumber.ToString(), 0);// 根据点数播放骰子相应动画

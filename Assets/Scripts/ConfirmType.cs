@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum ConfirmType 
 {
-    Battle,
-    Construction,
-    TradeStation
+    isBattle,
+    isConstruction,
+    isTradeStation,
+    isBase
 }

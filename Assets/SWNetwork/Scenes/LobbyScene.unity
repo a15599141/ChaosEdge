@@ -14245,9 +14245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f1df4244f2e3e4cad47d113f07b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomName: {fileID: 0}
-  hostName: {fileID: 0}
-  playerCount: {fileID: 0}
+  titleText: {fileID: 0}
   title: 
   objectId: 
 --- !u!1 &1199553112
@@ -15264,9 +15262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f1df4244f2e3e4cad47d113f07b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomName: {fileID: 0}
-  hostName: {fileID: 0}
-  playerCount: {fileID: 0}
+  titleText: {fileID: 0}
   title: 
   objectId: 
 --- !u!1 &1376132689
@@ -16732,9 +16728,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f1df4244f2e3e4cad47d113f07b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomName: {fileID: 0}
-  hostName: {fileID: 0}
-  playerCount: {fileID: 0}
+  titleText: {fileID: 0}
   title: 
   objectId: 
 --- !u!1 &1631960902
@@ -19425,9 +19419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f1df4244f2e3e4cad47d113f07b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomName: {fileID: 0}
-  hostName: {fileID: 0}
-  playerCount: {fileID: 0}
+  titleText: {fileID: 0}
   title: 
   objectId: 
 --- !u!1 &1984506247

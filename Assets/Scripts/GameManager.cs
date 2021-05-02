@@ -48,8 +48,9 @@ public class GameManager : MonoBehaviour
 
             //sceneSpawner.SpawnForPlayer(spawnPointIndex, playerPrefabIndex);
             //sceneSpawner.SpawnForNonPlayer(0, 0);
+      
             sceneSpawner.SpawnForPlayer(0, spawnPointIndex);
-
+          
             sceneSpawner.PlayerFinishedSceneSetup();
             Debug.Log("OnSpawnerReady " + finishedSceneSetup);
         }

@@ -20,23 +20,30 @@ public class CanvasManager : MonoBehaviour
         }
     }
 
+    public GameObject canvasBasic;
+    private RawImage playerPanelHighlight;
     public GameObject canvasShop;
     public GameObject canvasConfirm;
     public Button buttonConfirm;
     public Button buttonCancel;
     public Text textConfirm;
-
+    
     public GameObject[] playerPanels;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        playerPanelHighlight = canvasBasic.GetComponentInChildren<RawImage>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (PlayerManager.Instance.currPlayerIndex == 0) playerPanelHighlight.transform.position = playerPanels[0].transform.position;
+        if (PlayerManager.Instance.currPlayerIndex == 1) playerPanelHighlight.transform.position = playerPanels[1].transform.position;
+        if (PlayerManager.Instance.currPlayerIndex == 2) playerPanelHighlight.transform.position = playerPanels[2].transform.position;
+        if (PlayerManager.Instance.currPlayerIndex == 3) playerPanelHighlight.transform.position = playerPanels[3].transform.position;
     }
 
     public void IsConfirm(ConfirmType type)
@@ -44,20 +51,20 @@ public class CanvasManager : MonoBehaviour
         canvasConfirm.SetActive(true);
         switch (type)
         {
-            case ConfirmType.Battle:
+            case ConfirmType.isBattle:
                 textConfirm.text = "Battle?";
                 buttonConfirm.onClick.AddListener(BattleConfirm);
                 buttonCancel.onClick.AddListener(BattleCancel);
                 break;
-            case ConfirmType.Construction:
-                textConfirm.text = "Constract? $100";
-                buttonConfirm.onClick.AddListener(ConstructConfirm);
-                buttonCancel.onClick.AddListener(ConstructCancel);
-                break;
-            case ConfirmType.TradeStation:
+            case ConfirmType.isTradeStation:
                 textConfirm.text = "Trade?";
                 buttonConfirm.onClick.AddListener(TradeStationConfirm);
                 buttonCancel.onClick.AddListener(TradeStationCancel);
+                break;
+            case ConfirmType.isConstruction:
+                textConfirm.text = "Constract? $100";
+                buttonConfirm.onClick.AddListener(ConstructConfirm);
+                buttonCancel.onClick.AddListener(ConstructCancel);
                 break;
         }
     }
@@ -95,7 +102,7 @@ public class CanvasManager : MonoBehaviour
     }
     public void TradeStationCancel()
     {
-        PlayerManager.Instance.BattleCancel();
+        PlayerManager.Instance.TradeCancel();
         ConfirmExit();
     }
 
@@ -110,8 +117,9 @@ public class CanvasManager : MonoBehaviour
     {
         canvasShop.SetActive(true);
     }
-    public void CloseCanvasShop()
+    public void CloseTradeStation()
     {
+        PlayerManager.Instance.currPlayer.isOnTradeStation = false;
         PlayerManager.Instance.EndTheTurn();
         canvasShop.SetActive(false);
     }

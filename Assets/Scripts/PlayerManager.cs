@@ -68,7 +68,10 @@ public class PlayerManager : MonoBehaviour
         if (moveAllowed)
         {
             moveAllowed = false;
+            currPlayer.canConstructHere = true; 
+            isMoving = true; 
             steps = dice.diceNumber;
+            tempSteps = steps; 
             //Debug.Log("dice number: " + steps);
             StartCoroutine(PlayerMove());
         }
@@ -76,11 +79,7 @@ public class PlayerManager : MonoBehaviour
 
     IEnumerator PlayerMove()
     {
-        if (isMoving)
-        {
-            yield break;
-        }
-        isMoving = true;
+        if (tempSteps==0) yield break; // 如果玩家完全停止移动，退出协程
 
         while (steps > 0)
         {
@@ -96,29 +95,31 @@ public class PlayerManager : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             steps--;
 
+            //处理玩家经过商店
+            if (currPlayer.isOnTradeStation)
+            {
+                Debug.Log("currPlayer.isOnTradeStationg： " + currPlayer.isOnTradeStation);
+                tempSteps = steps;//缓存剩余格子数
+                steps = 0;//停止当前移动
+                CanvasManager.Instance.IsConfirm(ConfirmType.isTradeStation);//选择是否进入商店
+            }
 
             //处理玩家遭遇战斗
-            if (currPlayer.engagement)
+            else if (currPlayer.isEngaging)
             {
+                Debug.Log("currPlayer.isEngaging： " + currPlayer.isEngaging);
                 tempSteps = steps;//缓存剩余格子数
                 steps = 0;//停止当前移动
-                CanvasManager.Instance.IsConfirm(ConfirmType.Battle);//选择是否战斗
+                CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
             }
-            else if (currPlayer.onTradeStation)
-            {
-                tempSteps = steps;//缓存剩余格子数
-                steps = 0;//停止当前移动
-                CanvasManager.Instance.IsConfirm(ConfirmType.TradeStation);//选择是否进入商店
-            }
+        }
+
+        //处理玩家完全停下之后的格子事件
+        if (!currPlayer.isOnTradeStation && !currPlayer.isEngaging)
+        {
+            CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
         }
         
-
-        //处理格子事件
-        if (!currPlayer.engagement&&!currPlayer.onTradeStation)
-        {
-            CanvasManager.Instance.IsConfirm(ConfirmType.Construction);
-        }
-        isMoving = false;
     }
 
     bool MoveToNextNode(Vector3 goal)
@@ -126,23 +127,35 @@ public class PlayerManager : MonoBehaviour
         return goal != (currPlayer.transform.position = Vector3.MoveTowards(currPlayer.transform.position, goal, moveSpeed * Time.deltaTime));
     }
 
-
     public void EndTheTurn()
     {
-        //currPlayerIndex = (currPlayerIndex + 1) % playerNumber;
-        currPlayerIndex = 0;
+        currPlayerIndex = (currPlayerIndex + 1) % playerNumber;
+        //currPlayerIndex = 0;
         currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();
         CanvasManager.Instance.UpdatePlayerPanel();
         dice.rollButton.interactable = true;//释放按钮
-        currPlayer.onTradeStation = false;
+        isMoving = false;
     }
 
     public void BattleCancel()
     {
-        currPlayer.engagement = false;
-        currPlayer.onTradeStation = false;
-        steps = tempSteps;
-        tempSteps = 0;
-        StartCoroutine(PlayerMove());
+        currPlayer.isEngaging = false;
+        if (tempSteps == 0) EndTheTurn(); //如果玩家遭遇并取消战斗，且该点恰好为当前移动玩家的落点，结束回合
+        else
+        {
+            steps = tempSteps;
+            StartCoroutine(PlayerMove());
+        }
+    }
+
+    public void TradeCancel()
+    {
+        currPlayer.isOnTradeStation = false;
+        if (tempSteps == 0) EndTheTurn(); //如果商店恰好为当前移动玩家的落点，结束回合
+        else
+        {
+            steps = tempSteps;
+            StartCoroutine(PlayerMove());
+        }
     }
 }

@@ -9,7 +9,6 @@ public class Lobby : MonoBehaviour
 {
     public LobbyGUI GUI;
     public Canvas canvas; // lobby entry
-
     Dictionary<string, string> playersDict_; // Used to display players in different teams.
     RoomCustomData roomData_; // Current room's custom data.
 
@@ -37,14 +36,13 @@ public class Lobby : MonoBehaviour
         NetworkClient.Lobby.OnRoomMessageEvent += Lobby_OnRoomMessageEvent;
         NetworkClient.Lobby.OnPlayerMessageEvent += Lobby_OnPlayerMessageEvent;
         NetworkClient.Lobby.OnLobbyConnectedEvent += Lobby_OnLobbyConncetedEvent;
-
         // allow player to register in Lobby Entry
         canvas.GetComponent<CanvasGroup>().alpha = 0;
 
     }
     void Update()
     {
-        LobbyPing.text = "ping: " + NetworkClient.Instance.LobbyPing + "ms";
+        LobbyPing.text = "ping: " + NetworkClient.Instance.GameServerPing + "ms";
         if (Input.GetKeyDown(KeyCode.KeypadEnter)||Input.GetKeyDown(KeyCode.Return))
         {
             SendRoomMessage();
