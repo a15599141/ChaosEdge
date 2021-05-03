@@ -9130,7 +9130,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &675060870
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19092,6 +19092,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  roundText: {fileID: 449505584}
+  roundCount: 0
 --- !u!4 &1405362863
 Transform:
   m_ObjectHideFlags: 0
@@ -20079,8 +20081,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rollButton: {fileID: 112887188}
-  roundText: {fileID: 449505584}
-  roundCount: 0
   diceNumber: 0
 --- !u!95 &1566070774
 Animator:
