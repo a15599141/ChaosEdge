@@ -6,8 +6,7 @@ using TMPro;
 public class Dice : MonoBehaviour
 {
     public Button rollButton;   //掷骰子按钮
-    public TMP_Text roundText;  //游戏轮数显示器
-    public int roundCount;     //游戏轮数计数器
+
 
     Transform[] sixFaces = new Transform[6];// 声明数组, 存放色子的六个面坐标
     Transform upFace;
@@ -31,8 +30,7 @@ public class Dice : MonoBehaviour
 
     public void RollDiceOnClick() 
     {
-        roundCount++; //回合数加1
-        roundText.text = "ROUND " + roundCount.ToString(); //更新回合数
+
         rollButton.interactable = false; // 禁用摇色子按钮
         diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数
         GetComponent<Animator>().Play("Rotate to " + diceNumber.ToString(), 0);// 根据点数播放骰子相应动画

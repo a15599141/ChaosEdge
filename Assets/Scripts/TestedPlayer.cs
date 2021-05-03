@@ -10,8 +10,8 @@ public class TestedPlayer : MonoBehaviour
     public bool canConstructHere; //玩家是否可以在此建造
 
     //玩家属性
-    string id;
-    public int energy;//玩家当前能量币
+    public string id;
+    int energy;//玩家当前能量币
     int maxHP; //飞船总血量
     int currHP;//飞船当前血量
     int atk;//飞船攻击
@@ -51,11 +51,33 @@ public class TestedPlayer : MonoBehaviour
         }
         else if (other.transform.CompareTag("Player"))
         {
-            Debug.Log("battle incomming");
-            isEngaging = true;
+            //判断当前玩家进入战斗状态
+            if (PlayerManager.Instance.currPlayer == this)
+            {
+                Debug.Log(name + " vs " + other.name + "battle incomming");
+                isEngaging = true;
+            }
         }
        
     }
+    public string getEnergy()
+    {
+        return energy.ToString();
+    }
+
+    public bool setEnergy(int e)
+    {
+        if (energy+e<0)
+        {
+            return false;
+        }
+        else
+        {
+            energy += e;
+            return true;
+        }
+    }
+
     public string getMaxHP()
     {
         return maxHP.ToString();

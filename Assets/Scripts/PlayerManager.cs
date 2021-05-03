@@ -7,6 +7,8 @@ public class PlayerManager : MonoBehaviour
 {
     public List<GameObject> playerObjects;//玩家对象集合
     public List<GameObject> spawnPoints;//出生点对象集合
+    public List<Station> stations;//保存空间站集合
+
     public Dice dice;
     public bool moveAllowed;//判断当前玩家是否可以移动
     int playerNumber; //玩家数量
@@ -18,7 +20,7 @@ public class PlayerManager : MonoBehaviour
     int tempSteps;//缓存剩余格子数
     public bool isMoving; //判断当前玩家是否移动中
 
-    float moveSpeed = 10.0f;
+    float moveSpeed = 10.0f;//移动速度
 
     //启动单例
     private static PlayerManager _instance;
@@ -38,6 +40,13 @@ public class PlayerManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //初始化空间站
+        stations =  new List<Station>();
+        for (int i = 0; i < Route.Instacnce.routeNum; i++)
+        {
+            stations.Add(null);
+        }
+
 
         //playerObjects = GameObject.FindGameObjectsWithTag("Player").ToList();//获取所有玩家
         spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint").ToList();//获取所有出生点
@@ -49,6 +58,7 @@ public class PlayerManager : MonoBehaviour
             currPlayer = playerObjects[i].GetComponent<TestedPlayer>();
             currPlayer.transform.position = spawnPoints[i].transform.position;
             currPlayer.routePosition = spawnPoints[i].transform.GetSiblingIndex();
+            currPlayer.id = "Player" + (i + 1);
         }
 
         //选中第一个作为当前玩家
@@ -94,31 +104,43 @@ public class PlayerManager : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             steps--;
 
-            //处理玩家经过商店
-            if (currPlayer.isOnTradeStation)
+            //玩家经过商店或遭遇其他玩家时停止当前移动
+            if (currPlayer.isOnTradeStation||currPlayer.isEngaging)
             {
-                Debug.Log("currPlayer.isOnTradeStationg： " + currPlayer.isOnTradeStation);
+                Debug.Log(currPlayer.name + "isOnTradeStationg or engagement ");
                 tempSteps = steps;//缓存剩余格子数
                 steps = 0;//停止当前移动
-                CanvasManager.Instance.IsConfirm(ConfirmType.isTradeStation);//选择是否进入商店
-            }
-
-            //处理玩家遭遇战斗
-            else if (currPlayer.isEngaging)
-            {
-                Debug.Log("currPlayer.isEngaging： " + currPlayer.isEngaging);
-                tempSteps = steps;//缓存剩余格子数
-                steps = 0;//停止当前移动
-                CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
             }
         }
 
-        //处理玩家完全停下之后的格子事件
-        if (!currPlayer.isOnTradeStation && !currPlayer.isEngaging)
+        if (currPlayer.isOnTradeStation)
         {
-            CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
+            //处理玩家经过商店
+            CanvasManager.Instance.IsConfirm(ConfirmType.isTradeStation);//选择是否进入商店
+        }else if (currPlayer.isEngaging)
+        {
+            //处理玩家遭遇战斗
+            CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
+        }else
+        {
+            //处理玩家完全停下之后的格子事件
+
+            if (stations[currPlayer.routePosition] == null)//未被占领则提示是否建造
+            {
+                CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
+            }
+            else if (stations[currPlayer.routePosition].isOwner(currPlayer))//如果是当前玩家的建筑则提示升级
+            {
+                Debug.Log("update");
+                EndTheTurn();
+            }
+            else//如果不是当前玩家的建筑则提示战斗或过路费
+            {
+                Debug.Log("battle or pay");
+                EndTheTurn();
+            }
+
         }
-        
     }
 
     bool MoveToNextNode(Vector3 goal)
@@ -128,12 +150,28 @@ public class PlayerManager : MonoBehaviour
 
     public void EndTheTurn()
     {
-        currPlayerIndex = (currPlayerIndex + 1) % playerNumber;
+        currPlayerIndex = (currPlayerIndex + 1) % playerNumber;//获取下一个玩家下标
         //currPlayerIndex = 0;
-        currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();
+        currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();//切换到下一个玩家
+
+        if (currPlayerIndex == 0)//如果下一个玩家是第一个玩家
+        {
+            //回合数 + 1
+            CanvasManager.Instance.roundCount++;
+
+            //计算玩家获得能量根据拥有的空间站数量
+            foreach (Station sta in stations)
+            {
+                if (sta!=null)//跳过无人空间站
+                {
+                    sta.gainEnergy();
+                }
+            }
+        }
         CanvasManager.Instance.UpdatePlayerPanel();
         dice.rollButton.interactable = true;//释放按钮
         isMoving = false;
+
     }
 
     public void BattleCancel()
