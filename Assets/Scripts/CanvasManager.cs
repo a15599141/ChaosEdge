@@ -148,6 +148,12 @@ public class CanvasManager : MonoBehaviour
                 = "Energy: "+ player.energy.ToString();
             playerPanels[panelIndex].transform.GetChild(3).GetComponent<Text>().text
                 = "HP: " + player.getCurrHP() + "/" +player.getMaxHP();
+
+            playerPanels[panelIndex].transform.GetChild(4).GetComponent<Text>().text
+                = "ATK: " + player.getATK();
+
+            playerPanels[panelIndex].transform.GetChild(5).GetComponent<Text>().text
+                = "DEF: " + player.getDEF();
             panelIndex++;
         }
     }

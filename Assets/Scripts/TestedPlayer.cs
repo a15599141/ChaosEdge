@@ -24,11 +24,11 @@ public class TestedPlayer : MonoBehaviour
         isEngaging = false;
         isOnTradeStation = false;
         canConstructHere = false;
-        energy = 1000;
-        maxHP = 10;
-        currHP = 10;
-        atk = 1;
-        def = 1;
+        energy = 10;
+        maxHP = 6;
+        currHP = 6;
+        atk = 3;
+        def = 2;
         //evo = 1;
         //bag = 16;
     }

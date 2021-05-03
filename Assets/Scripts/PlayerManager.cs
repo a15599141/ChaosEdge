@@ -49,7 +49,6 @@ public class PlayerManager : MonoBehaviour
             currPlayer = playerObjects[i].GetComponent<TestedPlayer>();
             currPlayer.transform.position = spawnPoints[i].transform.position;
             currPlayer.routePosition = spawnPoints[i].transform.GetSiblingIndex();
-            currPlayer.energy = 1000;
         }
 
         //选中第一个作为当前玩家
