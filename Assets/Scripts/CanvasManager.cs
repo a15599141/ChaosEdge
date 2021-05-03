@@ -22,19 +22,30 @@ public class CanvasManager : MonoBehaviour
 
     public GameObject canvasBasic;
     private RawImage playerPanelHighlight;
+
     public GameObject canvasShop;
+    public RawImage itemHighlight;
+    public RawImage equipmentHighlight;
+    public RawImage spaceShipHighlight;
+
+    public GameObject canvasBattle;
     public GameObject canvasConfirm;
     public Button buttonConfirm;
     public Button buttonCancel;
     public Text textConfirm;
     
     public GameObject[] playerPanels;
-
+    public Button[] items;
+    public Button[] equipments;
+    public Button[] spaceShips;
 
     // Start is called before the first frame update
     void Start()
     {
         playerPanelHighlight = canvasBasic.GetComponentInChildren<RawImage>();
+        foreach (Button item in items) item.onClick.AddListener(itemSelect);
+        //foreach (Button equipment in equipments) equipment.onClick.AddListener(BattleConfirm);
+        //foreach (Button spaceShip in spaceShips) spaceShip.onClick.AddListener(BattleConfirm);
     }
 
     // Update is called once per frame
@@ -119,6 +130,9 @@ public class CanvasManager : MonoBehaviour
     }
     public void CloseTradeStation()
     {
+        itemHighlight.gameObject.SetActive(false);
+        equipmentHighlight.gameObject.SetActive(false);
+        spaceShipHighlight.gameObject.SetActive(false);
         PlayerManager.Instance.currPlayer.isOnTradeStation = false;
         PlayerManager.Instance.EndTheTurn();
         canvasShop.SetActive(false);
@@ -136,5 +150,11 @@ public class CanvasManager : MonoBehaviour
                 = "HP: " + player.getCurrHP() + "/" +player.getMaxHP();
             panelIndex++;
         }
+    }
+
+    public void itemSelect()
+    {
+        itemHighlight.gameObject.SetActive(true);
+        //itemHighlight.transform.position = button.transform.position;
     }
 }

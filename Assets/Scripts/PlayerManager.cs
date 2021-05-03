@@ -16,7 +16,7 @@ public class PlayerManager : MonoBehaviour
 
     int steps; //当前玩家需要移动的格子数
     int tempSteps;//缓存剩余格子数
-    bool isMoving; //判断当前玩家是否移动中
+    public bool isMoving; //判断当前玩家是否移动中
 
     float moveSpeed = 10.0f;
 
