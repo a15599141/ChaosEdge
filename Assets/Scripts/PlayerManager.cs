@@ -47,7 +47,6 @@ public class PlayerManager : MonoBehaviour
             stations.Add(null);
         }
 
-
         //playerObjects = GameObject.FindGameObjectsWithTag("Player").ToList();//获取所有玩家
         spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint").ToList();//获取所有出生点
         playerNumber = playerObjects.Count;//玩家总数
@@ -77,7 +76,6 @@ public class PlayerManager : MonoBehaviour
         if (moveAllowed)
         {
             moveAllowed = false;
-            currPlayer.canConstructHere = true; 
             isMoving = true; 
             steps = dice.diceNumber;
             tempSteps = steps; 

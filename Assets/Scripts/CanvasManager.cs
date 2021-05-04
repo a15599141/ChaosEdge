@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class CanvasManager : MonoBehaviour
 {
-
     private static CanvasManager _instance;
-
     public static CanvasManager Instance
     {
         get
@@ -22,7 +21,7 @@ public class CanvasManager : MonoBehaviour
     }
 
     public GameObject canvasBasic;
-    private RawImage playerPanelHighlight;
+    public RawImage playerPanelHighlight;
 
     public GameObject canvasShop;
     public RawImage itemHighlight;
@@ -39,9 +38,45 @@ public class CanvasManager : MonoBehaviour
     public Text textConfirm;
     
     public GameObject[] playerPanels;
-    public Button[] items;
+    // 商店物品
+    public Button[] items; 
     public Button[] equipments;
     public Button[] spaceShips;
+
+    // 商店物品构造体及列表
+    struct Item
+    {
+        public string name;
+        public int energyCost;
+        public string description;
+        public int HP;
+        public Item(string n, int e, string d, int H){ name = n; energyCost = e; description = d; HP = H; }
+    }; List<Item> itemList = new List<Item>();
+    struct Equipment
+    {
+        public string name;
+        public int energyCost;
+        public string description;
+        public int level;
+        public int ATK;
+        public int DEF;
+        public int EVO;
+        public Equipment(string n, int e, string d, int l, int A, int D, int E)
+        { name = n; energyCost = e; description = d; level = l; ATK = A; DEF = D; EVO = E; }
+    }; List<Equipment> equipmentList = new List<Equipment>();
+    struct SpaceShip
+    {
+        public string name;
+        public int energyCost;
+        public string description;
+        public int level;
+        public int HP;
+        public int ATK;
+        public int DEF;
+        public int EVO;
+        public SpaceShip(string n, int e, string d, int l, int H, int A, int D, int E)
+        { name = n; energyCost = e; description = d; level = l; HP = H; ATK = A; DEF = D; EVO = E; }
+    }; List<SpaceShip> spaceShipList = new List<SpaceShip>();
 
     public TMP_Text roundText;  //游戏轮数显示器
     public int roundCount;     //游戏轮数计数器
@@ -49,19 +84,19 @@ public class CanvasManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        playerPanelHighlight = canvasBasic.GetComponentInChildren<RawImage>();
-        foreach (Button item in items) item.onClick.AddListener(itemSelect);
-        //foreach (Button equipment in equipments) equipment.onClick.AddListener(BattleConfirm);
-        //foreach (Button spaceShip in spaceShips) spaceShip.onClick.AddListener(BattleConfirm);
-    }
+        roundCount = 1; //初始回合为1
+        TradeStationInitialize(); // 商店初始化
 
+    }
     // Update is called once per frame
     void Update()
     {
+        //当前回合玩家属性面板高亮
         if (PlayerManager.Instance.currPlayerIndex == 0) playerPanelHighlight.transform.position = playerPanels[0].transform.position;
         if (PlayerManager.Instance.currPlayerIndex == 1) playerPanelHighlight.transform.position = playerPanels[1].transform.position;
         if (PlayerManager.Instance.currPlayerIndex == 2) playerPanelHighlight.transform.position = playerPanels[2].transform.position;
         if (PlayerManager.Instance.currPlayerIndex == 3) playerPanelHighlight.transform.position = playerPanels[3].transform.position;
+
     }
 
     public void showMessage(string msg)
@@ -75,7 +110,6 @@ public class CanvasManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         canvasMessage.SetActive(false);
     }
-
     public void IsConfirm(ConfirmType type)
     {
         canvasConfirm.SetActive(true);
@@ -158,9 +192,6 @@ public class CanvasManager : MonoBehaviour
     }
     public void CloseTradeStation()
     {
-        itemHighlight.gameObject.SetActive(false);
-        equipmentHighlight.gameObject.SetActive(false);
-        spaceShipHighlight.gameObject.SetActive(false);
         PlayerManager.Instance.currPlayer.isOnTradeStation = false;
         PlayerManager.Instance.EndTheTurn();
         canvasShop.SetActive(false);
@@ -186,13 +217,83 @@ public class CanvasManager : MonoBehaviour
                 = "DEF: " + player.getDEF();
             panelIndex++;
         }
-
         roundText.text = "ROUND " + roundCount.ToString(); //更新回合数
     }
 
-    public void itemSelect()
+    public void TradeStationInitialize()
     {
-        itemHighlight.gameObject.SetActive(true);
-        //itemHighlight.transform.position = button.transform.position;
+        //添加Item到列表
+        itemList.Add(new Item("HP Recovery1", 3, "This is a Recovery", 1));
+        itemList.Add(new Item("HP Recovery2", 4, "This is a Recovery", 2));
+        itemList.Add(new Item("HP Recovery3", 5, "This is a Recovery", 3));
+        //添加Equipment到列表
+        equipmentList.Add(new Equipment("Ammo1", 3, "This is a ammo", 1, 1, 0, 0));
+        equipmentList.Add(new Equipment("Ammo2", 5, "This is a ammo", 2, 2, 0, 0));
+        equipmentList.Add(new Equipment("Ammo3", 9, "This is a ammo", 3, 3, 0, 0));
+        equipmentList.Add(new Equipment("Shield1", 3, "This is a shield", 1, 0, 1, 0));
+        equipmentList.Add(new Equipment("Shield2", 5, "This is a shield", 2, 0, 2, 0));
+        equipmentList.Add(new Equipment("Shield3", 7, "This is a shield", 3, 0, 3, 0));
+        equipmentList.Add(new Equipment("Engine1", 3, "This is a engine", 1, 0, 0, 1));
+        equipmentList.Add(new Equipment("Engine2", 5, "This is a engine", 2, 0, 0, 2));
+        equipmentList.Add(new Equipment("Engine3", 9, "This is a engine", 3, 0, 0, 3));
+
+        //添加SpaceShip到列表
+        spaceShipList.Add(new SpaceShip("SpaceShip1", 20, "This is a SpaceShip", 1, 8,  4, 3, 2));
+        spaceShipList.Add(new SpaceShip("SpaceShip2", 25, "This is a SpaceShip", 2, 10, 6, 5, 4));
+        spaceShipList.Add(new SpaceShip("SpaceShip3", 30, "This is a SpaceShip", 3, 12, 8, 7, 6));
+        spaceShipList.Add(new SpaceShip("SpaceShip1", 20, "This is a SpaceShip", 1, 8, 4, 3, 2));
+        spaceShipList.Add(new SpaceShip("SpaceShip2", 25, "This is a SpaceShip", 2, 10, 6, 5, 4));
+        spaceShipList.Add(new SpaceShip("SpaceShip3", 30, "This is a SpaceShip", 3, 12, 8, 7, 6));
+        spaceShipList.Add(new SpaceShip("SpaceShip1", 20, "This is a SpaceShip", 1, 8, 4, 3, 2));
+        spaceShipList.Add(new SpaceShip("SpaceShip2", 25, "This is a SpaceShip", 2, 10, 6, 5, 4));
+        spaceShipList.Add(new SpaceShip("SpaceShip3", 30, "This is a SpaceShip", 3, 12, 8, 7, 6));
+        spaceShipList.Add(new SpaceShip("SpaceShip1", 20, "This is a SpaceShip", 1, 8, 4, 3, 2));
+        spaceShipList.Add(new SpaceShip("SpaceShip2", 25, "This is a SpaceShip", 2, 10, 6, 5, 4));
+        spaceShipList.Add(new SpaceShip("SpaceShip3", 30, "This is a SpaceShip", 3, 12, 8, 7, 6));
+
+
+        // 商店物品选中高亮显示, 选种物品详情显示
+        
+        foreach (Button item in items) item.onClick.AddListener(() =>
+        {
+            itemHighlight.transform.position = item.transform.position;
+            int idx = Array.IndexOf(items, item);
+            string str = "CanvasTradeStation/Items/Detail/"; //详情的目录
+            GameObject.Find(str + "Name").GetComponent<Text>().text = itemList[idx].name;
+            GameObject.Find(str + "EnergyCost").GetComponent<Text>().text = itemList[idx].energyCost + " Energy";
+            GameObject.Find(str + "Description").GetComponent<Text>().text = itemList[idx].description;
+            GameObject.Find(str + "Effect").GetComponent<Text>().text =
+            "Recovery: HP +" + itemList[idx].HP;
+            GameObject.Find(str + "Image").GetComponent<RawImage>().texture = item.GetComponent<RawImage>().texture;
+        });
+        foreach (Button equipment in equipments) equipment.onClick.AddListener(() =>
+        {
+            equipmentHighlight.transform.position = equipment.transform.position;
+            int idx = Array.IndexOf(equipments, equipment);
+            string str = "CanvasTradeStation/Equipments/Detail/"; //详情的目录
+            GameObject.Find(str + "Name").GetComponent<Text>().text = equipmentList[idx].name;
+            GameObject.Find(str + "EnergyCost").GetComponent<Text>().text = equipmentList[idx].energyCost + " Energy";
+            GameObject.Find(str + "Description").GetComponent<Text>().text = equipmentList[idx].description;
+            GameObject.Find(str + "Effect").GetComponent<Text>().text =
+            "ATK+" + equipmentList[idx].ATK +
+            "  DEF+" + equipmentList[idx].DEF +
+            "  EVO+" + equipmentList[idx].EVO;
+            GameObject.Find(str + "Image").GetComponent<RawImage>().texture = equipment.GetComponent<RawImage>().texture;
+        });
+        foreach (Button spaceShip in spaceShips) spaceShip.onClick.AddListener(() =>
+        {
+            spaceShipHighlight.transform.position = spaceShip.transform.position;
+            int idx = Array.IndexOf(spaceShips, spaceShip);
+            string str = "CanvasTradeStation/SpaceShips/Detail/"; //详情的目录
+            GameObject.Find(str + "Name").GetComponent<Text>().text = spaceShipList[idx].name;
+            GameObject.Find(str + "EnergyCost").GetComponent<Text>().text = spaceShipList[idx].energyCost.ToString() + " Energy";
+            GameObject.Find(str + "Description").GetComponent<Text>().text = spaceShipList[idx].description;
+            GameObject.Find(str + "Effect").GetComponent<Text>().text =
+            "HP+" + spaceShipList[idx].HP +
+            "  ATK+" + spaceShipList[idx].ATK +
+            "  DEF+" + spaceShipList[idx].DEF +
+            "  EVO+" + spaceShipList[idx].EVO;
+            GameObject.Find(str + "Image").GetComponent<RawImage>().texture = spaceShip.GetComponent<RawImage>().texture;
+        });
     }
 }

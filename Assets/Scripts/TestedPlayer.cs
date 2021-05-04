@@ -7,7 +7,6 @@ public class TestedPlayer : MonoBehaviour
     public int routePosition;//玩家所在格子位置
     public bool isEngaging; //玩家是否遭遇
     public bool isOnTradeStation;//玩家是否在交易站
-    public bool canConstructHere; //玩家是否可以在此建造
 
     //玩家属性
     public string id;
@@ -23,7 +22,6 @@ public class TestedPlayer : MonoBehaviour
     {
         isEngaging = false;
         isOnTradeStation = false;
-        canConstructHere = false;
         energy = 10;
         maxHP = 6;
         currHP = 6;
