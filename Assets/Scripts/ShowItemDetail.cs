@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ShowItemDetail : MonoBehaviour
 {
-    public GameObject detailPanel;
+    public GameObject obj;
 
     // Start is called before the first frame update
     void Start()
@@ -20,12 +20,11 @@ public class ShowItemDetail : MonoBehaviour
 
     public void ShowDetailPanel()
     {
-        detailPanel.SetActive(true);
+        gameObject.SetActive(true);
     }
 
     public void HideDetailPanel()
     {
-        detailPanel.SetActive(false);
-
+        gameObject.SetActive(false);
     }
 }

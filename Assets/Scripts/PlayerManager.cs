@@ -67,7 +67,6 @@ public class PlayerManager : MonoBehaviour
 
         //更新UI界面玩家信息
         CanvasManager.Instance.UpdatePlayerPanel();
-
     }
 
     // Update is called once per frame
@@ -167,6 +166,7 @@ public class PlayerManager : MonoBehaviour
             }
         }
         CanvasManager.Instance.UpdatePlayerPanel();
+        CanvasManager.Instance.UpdatePlayerBag();
         dice.rollButton.interactable = true;//释放按钮
         isMoving = false;
 

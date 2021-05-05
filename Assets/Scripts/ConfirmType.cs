@@ -7,5 +7,7 @@ public enum ConfirmType
     isBattle,
     isConstruction,
     isTradeStation,
-    isBase
+    energyNotEnough,
+    itemBagIsFull,
+    equipmentBagIsFull
 }

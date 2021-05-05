@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 using SWNetwork;
+using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class TestedPlayer : MonoBehaviour
 {
@@ -15,20 +17,19 @@ public class TestedPlayer : MonoBehaviour
     int currHP;//飞船当前血量
     int atk;//飞船攻击
     int def;//飞船防御
-    //int evo;//飞船闪避
-    //int bag;//飞船格子大小
-
-    private void Awake()
+    int evo;//飞船闪避
+    public List<Item> playerItemBag = new List<Item>(); //玩家道具背包
+    public List<Equipment> playerEquipmentBag = new List<Equipment>(); //玩家战斗装备背包
+    private void Awake() //初始状态及属性
     {
         isEngaging = false;
         isOnTradeStation = false;
-        energy = 10;
+        energy = 100;
         maxHP = 6;
         currHP = 6;
         atk = 3;
         def = 2;
-        //evo = 1;
-        //bag = 16;
+        evo = 1;
     }
 
     // Start is called before the first frame update
@@ -58,12 +59,12 @@ public class TestedPlayer : MonoBehaviour
         }
        
     }
-    public string getEnergy()
+    public int getEnergy()
     {
-        return energy.ToString();
+        return energy;
     }
 
-    public bool setEnergy(int e)
+    public bool setEnergy(int e) //扣钱e设置负数，加钱设置e为正数
     {
         if (energy+e<0)
         {
@@ -75,22 +76,25 @@ public class TestedPlayer : MonoBehaviour
             return true;
         }
     }
+    public int getMaxHP()
+    {
+        return maxHP;
+    }
+    public int getCurrHP()
+    {
+        return currHP;
+    }
 
-    public string getMaxHP()
+    public int getATK()
     {
-        return maxHP.ToString();
+        return atk;
     }
-    public string getCurrHP()
+    public int getDEF()
     {
-        return currHP.ToString();
+        return def;
     }
-
-    public string getATK()
+    public int getEVO()
     {
-        return atk.ToString();
-    }
-    public string getDEF()
-    {
-        return def.ToString();
+        return evo;
     }
 }
