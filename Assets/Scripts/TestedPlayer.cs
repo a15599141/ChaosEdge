@@ -24,7 +24,7 @@ public class TestedPlayer : MonoBehaviour
     {
         isEngaging = false;
         isOnTradeStation = false;
-        energy = 100;
+        energy = 10;
         maxHP = 6;
         currHP = 6;
         atk = 3;
@@ -76,6 +76,11 @@ public class TestedPlayer : MonoBehaviour
             return true;
         }
     }
+    public void DirectSetEnergy(int e) //直接设置能源
+    {
+        if (e >= 0)energy = e;
+    }
+
     public int getMaxHP()
     {
         return maxHP;
