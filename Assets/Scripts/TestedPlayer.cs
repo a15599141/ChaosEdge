@@ -104,4 +104,9 @@ public class TestedPlayer : MonoBehaviour
     {
         return evo;
     }
+
+    public void Battle(int diceNum1,int diceNum2)
+    {
+        tarPlayer.currHP -= atk + diceNum1 - tarPlayer.def+diceNum2;
+    }
 }

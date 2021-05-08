@@ -20,7 +20,7 @@ TagManager:
   - TradeStation
   - 
   - 
-  - 
+  - DiceForBattle
   - 
   - 
   - 
@@ -44,6 +44,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Arrows
-    uniqueID: 3547145027
+  - name: Dice
+    uniqueID: 3846217737
     locked: 0

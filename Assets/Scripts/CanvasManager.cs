@@ -35,8 +35,10 @@ public class CanvasManager : MonoBehaviour
     
     public GameObject canvasShop;//商店面板对象
     public GameObject canvasEnemyStation;//遭遇敌方空间站面板对象
-    public Button buttonEnemyStationAttack;
-    public Button buttonEnemyStationSupply;
+
+    public GameObject canvasBattle;//战斗界面
+    public DiceForBattle diceBattle1;//战斗用骰子1
+    public DiceForBattle diceBattle2;//战都用骰子2
 
     public RawImage itemHighlight;
     public RawImage equipmentHighlight;
@@ -220,6 +222,25 @@ public class CanvasManager : MonoBehaviour
         {
             showMessage("not enough energy!");
         }
+    }
+
+    //敌方空间站进攻
+    public void EnemyStationAttack()
+    {
+        canvasBattle.SetActive(true);
+    }
+
+    public void BattleWithDEF()
+    {
+        diceBattle2.GetComponent<DiceForBattle>().RollDice();
+        Invoke("delayBattle", 1.5f);
+    }
+
+    public void delayBattle()
+    {
+        PlayerManager.Instance.currPlayer.Battle(diceBattle1.diceNumber, diceBattle2.diceNumber);
+        canvasBattle.SetActive(false);
+        PlayerManager.Instance.EndTheTurn();
     }
 
 
