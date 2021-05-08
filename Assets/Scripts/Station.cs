@@ -23,6 +23,11 @@
     {
         return owner == tp;
     }
+    public TestedPlayer getOwner()
+    {
+        return owner;
+    }
+
     public void gainEnergy()
     {
         owner.setEnergy(energyPerTurn);

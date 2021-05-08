@@ -21,20 +21,23 @@ public class CanvasManager : MonoBehaviour
         }
     }
 
-    public GameObject canvasBasic;
     public GameObject[] playerPanels; //玩家属性面板
     public RawImage playerPanelHighlight;//玩家属性面板高亮
 
-    public GameObject canvasBattle;
+    public GameObject canvasMessage;//提示信息面板
+    public Text textMessage;//提示信息面板文字
 
-    public GameObject canvasMessage;
-    public Text textMessage;
-    public GameObject canvasConfirm;
-    public Button buttonConfirm;
-    public Button buttonCancel;
-    public Text textConfirm;
+    public GameObject canvasConfirm;//确认信息面板
+    public Button buttonConfirm;//确认按钮
+    public Button buttonCancel;//确认界面取消按钮
+    public Text textConfirm;//确认面板文字提示
 
-    public GameObject canvasShop;
+    
+    public GameObject canvasShop;//商店面板对象
+    public GameObject canvasEnemyStation;//遭遇敌方空间站面板对象
+    public Button buttonEnemyStationAttack;
+    public Button buttonEnemyStationSupply;
+
     public RawImage itemHighlight;
     public RawImage equipmentHighlight;
     public RawImage spaceShipHighlight;
@@ -66,6 +69,7 @@ public class CanvasManager : MonoBehaviour
     {
         roundCount = 1; //初始回合为1
         TradeStationInitialize(); // 商店初始化
+
     }
     // Update is called once per frame
     void Update()
@@ -175,16 +179,52 @@ public class CanvasManager : MonoBehaviour
         buttonCancel.onClick.RemoveAllListeners();
     }
 
+    //打开商店界面
     public void OpenCanvasShop()
     {
         canvasShop.SetActive(true);
     }
+
+    //关闭商店界面
     public void CloseTradeStation()
     {
         PlayerManager.Instance.currPlayer.isOnTradeStation = false;
         PlayerManager.Instance.EndTheTurn();
         canvasShop.SetActive(false);
     }
+
+    //打开遭遇敌方空间站界面
+    public void OpenCanvasEnemyStation()
+    {
+        canvasEnemyStation.SetActive(true);
+    }
+
+    //关闭遭遇敌方空间站界面
+    public void CloseCanvasEnemyStation()
+    {
+        PlayerManager.Instance.EndTheTurn();
+        canvasEnemyStation.SetActive(false);
+    }
+
+    //敌方空间站补给
+    public void EnemyStationSupply()
+    {
+        TestedPlayer player = PlayerManager.Instance.currPlayer;
+        if (player.setEnergy(-5))
+        {
+            player.tarPlayer.setEnergy(5);
+            CloseCanvasEnemyStation();
+            showMessage("paid 5 energy to "+player.tarPlayer.name);
+        }
+        else
+        {
+            showMessage("not enough energy!");
+        }
+    }
+
+
+
+
     public void UpdatePlayerPanel()
     {
         int panelIndex = 0;

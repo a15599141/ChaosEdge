@@ -37,6 +37,15 @@ public class Dice : MonoBehaviour
 
         //StartCoroutine(RollDice());      // 启动骰子协程  
     }
+
+    //only for test
+    public void RollDiceWithNum(int i)
+    {
+        rollButton.interactable = false; // 禁用摇色子按钮
+        diceNumber = i;
+        GetComponent<Animator>().Play("Rotate to " + diceNumber.ToString(), 0);// 根据点数播放骰子相应动画
+    }
+
     //协程控制骰子转动
     /*IEnumerator RollDice()
     {

@@ -8,6 +8,7 @@ public class TestedPlayer : MonoBehaviour
 {
     public int routePosition;//玩家所在格子位置
     public bool isEngaging; //玩家是否遭遇
+    public TestedPlayer tarPlayer;//目标玩家
     public bool isOnTradeStation;//玩家是否在交易站
 
     //玩家属性
@@ -55,6 +56,7 @@ public class TestedPlayer : MonoBehaviour
             {
                 Debug.Log(name + " vs " + other.name + "battle incomming");
                 isEngaging = true;
+                tarPlayer = other.GetComponent<TestedPlayer>();
             }
         }
        

@@ -120,23 +120,28 @@ public class PlayerManager : MonoBehaviour
             CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
         }else
         {
-            //处理玩家完全停下之后的格子事件
+            //处理玩家完全停下之后与station的交互
+            DealWithStation();
+        }
+    }
 
-            if (stations[currPlayer.routePosition] == null)//未被占领则提示是否建造
-            {
-                CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
-            }
-            else if (stations[currPlayer.routePosition].isOwner(currPlayer))//如果是当前玩家的建筑则提示升级
-            {
-                Debug.Log("update");
-                EndTheTurn();
-            }
-            else//如果不是当前玩家的建筑则提示战斗或过路费
-            {
-                Debug.Log("battle or pay");
-                EndTheTurn();
-            }
-
+    public void DealWithStation()
+    {
+        if (stations[currPlayer.routePosition] == null)//未被占领则提示是否建造
+        {
+            CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
+        }
+        else if (stations[currPlayer.routePosition].isOwner(currPlayer))//如果是当前玩家的建筑则提示升级
+        {
+            Debug.Log("update");
+            EndTheTurn();
+        }
+        else//如果不是当前玩家的建筑则提示战斗或过路费
+        {
+            Debug.Log("battle or pay");
+            //EndTheTurn();
+            currPlayer.tarPlayer = stations[currPlayer.routePosition].getOwner();//设定当前玩家的目标玩家为空间站所有者
+            CanvasManager.Instance.OpenCanvasEnemyStation();
         }
     }
 
@@ -175,7 +180,8 @@ public class PlayerManager : MonoBehaviour
     public void BattleCancel()
     {
         currPlayer.isEngaging = false;
-        if (tempSteps == 0) EndTheTurn(); //如果玩家遭遇并取消战斗，且该点恰好为当前移动玩家的落点，结束回合
+        DealWithStation();
+        if (tempSteps == 0) DealWithStation(); //如果玩家遭遇并取消战斗，且该点恰好为当前移动玩家的落点，则对落脚点station处理剩余事件
         else
         {
             steps = tempSteps;
