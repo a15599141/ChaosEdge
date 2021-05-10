@@ -9,6 +9,7 @@ public class TestedPlayer : MonoBehaviour
     public int routePosition;//玩家所在格子位置
     public bool isEngaging; //玩家是否遭遇
     public TestedPlayer tarPlayer;//目标玩家
+    public bool isTargetPlayer;// 玩家战斗目标是否为玩家 true=玩家 false=玩家的空间站
     public bool isOnTradeStation;//玩家是否在交易站
 
     //玩家属性
@@ -105,8 +106,21 @@ public class TestedPlayer : MonoBehaviour
         return evo;
     }
 
-    public void Battle(int diceNum1,int diceNum2)
+    //战斗
+    public string Battle(int diceNum1, int diceNum2,Station sta)
     {
-        tarPlayer.currHP -= atk + diceNum1 - tarPlayer.def+diceNum2;
+        int res;
+        if (isTargetPlayer)
+        {
+            res =  (atk + diceNum1) - (tarPlayer.def + diceNum2);
+            tarPlayer.currHP -= res;
+            return tarPlayer.name + " got " + res + " damage from " + name;
+        }
+        else
+        {
+            res = (atk + diceNum1) - (sta.def + diceNum2);
+            sta.setHP(res);
+            return tarPlayer.name + "'station got " + res + " damage from " + name;
+        }
     }
 }

@@ -117,6 +117,7 @@ public class PlayerManager : MonoBehaviour
         }else if (currPlayer.isEngaging)
         {
             //处理玩家遭遇战斗
+            currPlayer.isTargetPlayer = true;
             CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
         }else
         {
@@ -138,9 +139,10 @@ public class PlayerManager : MonoBehaviour
         }
         else//如果不是当前玩家的建筑则提示战斗或过路费
         {
-            Debug.Log("battle or pay");
+            Debug.Log("battle or pay " + stations[currPlayer.routePosition].getOwner());
             //EndTheTurn();
             currPlayer.tarPlayer = stations[currPlayer.routePosition].getOwner();//设定当前玩家的目标玩家为空间站所有者
+            currPlayer.isTargetPlayer = false;
             CanvasManager.Instance.OpenCanvasEnemyStation();
         }
     }
@@ -180,7 +182,6 @@ public class PlayerManager : MonoBehaviour
     public void BattleCancel()
     {
         currPlayer.isEngaging = false;
-        DealWithStation();
         if (tempSteps == 0) DealWithStation(); //如果玩家遭遇并取消战斗，且该点恰好为当前移动玩家的落点，则对落脚点station处理剩余事件
         else
         {

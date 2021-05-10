@@ -36,9 +36,17 @@ public class CanvasManager : MonoBehaviour
     public GameObject canvasShop;//商店面板对象
     public GameObject canvasEnemyStation;//遭遇敌方空间站面板对象
 
+
+    //战斗界面组件
     public GameObject canvasBattle;//战斗界面
     public DiceForBattle diceBattle1;//战斗用骰子1
     public DiceForBattle diceBattle2;//战都用骰子2
+    public Text textBattlePlayer1Name;
+    public Text textBattlePlayer1Status;
+    public Text textBattlePlayer1HP;
+    public Text textBattlePlayer2Name;
+    public Text textBattlePlayer2Status;
+    public Text textBattlePlayer2HP;
 
     public RawImage itemHighlight;
     public RawImage equipmentHighlight;
@@ -155,7 +163,7 @@ public class CanvasManager : MonoBehaviour
 
     public void BattleConfirm()
     {
-
+        EnemyAttack();
     }
 
     public void BattleCancel()
@@ -204,7 +212,6 @@ public class CanvasManager : MonoBehaviour
     //关闭遭遇敌方空间站界面
     public void CloseCanvasEnemyStation()
     {
-        PlayerManager.Instance.EndTheTurn();
         canvasEnemyStation.SetActive(false);
     }
 
@@ -217,6 +224,7 @@ public class CanvasManager : MonoBehaviour
             player.tarPlayer.setEnergy(5);
             CloseCanvasEnemyStation();
             showMessage("paid 5 energy to "+player.tarPlayer.name);
+            PlayerManager.Instance.EndTheTurn();
         }
         else
         {
@@ -224,28 +232,64 @@ public class CanvasManager : MonoBehaviour
         }
     }
 
-    //敌方空间站进攻
-    public void EnemyStationAttack()
+    //初始化战斗
+    public void EnemyAttack()
     {
+        diceBattle1.GetComponent<DiceForBattle>().RollDice();//投掷进攻方骰子
+        TestedPlayer player = PlayerManager.Instance.currPlayer;
+        //设置双方战斗属性
+        textBattlePlayer1Name.text = player.name;
+        textBattlePlayer1HP.text = player.getCurrHP() + " / " + player.getMaxHP();
+        textBattlePlayer1Status.text = "ATK:" + player.getATK() + "\n" +
+                                       "DEF:" + player.getDEF() + "\n" +
+                                       "EVO:" + player.getEVO();
+        if (player.isTargetPlayer)
+        {
+
+            textBattlePlayer2Name.text = player.tarPlayer.name;
+            textBattlePlayer2HP.text = player.tarPlayer.getCurrHP() + " / " + player.tarPlayer.getMaxHP();
+            textBattlePlayer2Status.text = "ATK:" + player.tarPlayer.getATK() + "\n" +
+                                           "DEF:" + player.tarPlayer.getDEF() + "\n" +
+                                           "EVO:" + player.tarPlayer.getEVO();
+            //关闭确认菜单
+            ConfirmExit();
+        }
+        else
+        {
+            Station sta = PlayerManager.Instance.stations[player.routePosition];
+            textBattlePlayer2Name.text = sta.getOwner().name + "'s Station";
+            textBattlePlayer2HP.text = sta.getHP() + " / " + sta.getMaxHP();
+            textBattlePlayer2Status.text = "ATK:" + sta.getATK() + "\n" +
+                                           "DEF:" + sta.getDEF();
+            //关闭遭遇面板
+            CloseCanvasEnemyStation();
+        }
+        //显示战斗面板
         canvasBattle.SetActive(true);
     }
 
+    //防御方式战斗
     public void BattleWithDEF()
     {
         diceBattle2.GetComponent<DiceForBattle>().RollDice();
-        Invoke("delayBattle", 1.5f);
+        Invoke("delayBattle", 1.5f);//延迟战斗结果显示。1。5秒
     }
 
+    //延迟战斗结果显示
     public void delayBattle()
     {
-        PlayerManager.Instance.currPlayer.Battle(diceBattle1.diceNumber, diceBattle2.diceNumber);
-        canvasBattle.SetActive(false);
-        PlayerManager.Instance.EndTheTurn();
+
+        TestedPlayer player = PlayerManager.Instance.currPlayer;//获取玩家
+        Station station = PlayerManager.Instance.stations[player.routePosition];//玩家所在空间站
+        string res = player.Battle(diceBattle1.diceNumber, diceBattle2.diceNumber, station);//空间站战斗
+        showMessage(res);
+        canvasBattle.SetActive(false);//关闭战斗界面
+        PlayerManager.Instance.EndTheTurn();//结束回合
     }
 
 
 
-
+    //更新所有玩家界面
     public void UpdatePlayerPanel()
     {
         int panelIndex = 0;
