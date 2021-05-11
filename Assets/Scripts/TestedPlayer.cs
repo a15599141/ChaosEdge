@@ -115,14 +115,14 @@ public class TestedPlayer : MonoBehaviour
     public string Battle(int diceNum1, int diceNum2,Station sta)
     {
         int res;
-        if (isTargetPlayer)
+        if (isTargetPlayer)//判断目标是否为玩家
         {
             res =  (atk + diceNum1) - (tarPlayer.def + diceNum2);//计算战斗伤害
             res = res <= 0 ? 1 : res;//小于1固定1点伤害
             tarPlayer.currHP -= res;
             return tarPlayer.name + " got " + res + " damage from " + name;
         }
-        else
+        else//目标为空间站
         {
             res = (atk + diceNum1) - (sta.def + diceNum2);
             res = res <= 0 ? 1 : res;

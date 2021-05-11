@@ -262,7 +262,6 @@ public class CanvasManager : MonoBehaviour
     //初始化战斗
     public void EnemyAttack()
     {
-        diceBattle1.GetComponent<DiceForBattle>().RollDice();//投掷进攻方骰子
         TestedPlayer player = PlayerManager.Instance.currPlayer;
         //设置双方战斗属性
         textBattlePlayer1Name.text = player.name;
