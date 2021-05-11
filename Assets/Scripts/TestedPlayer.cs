@@ -106,19 +106,26 @@ public class TestedPlayer : MonoBehaviour
         return evo;
     }
 
+    public void Repaire()
+    {
+        currHP = maxHP;
+    }
+
     //战斗
     public string Battle(int diceNum1, int diceNum2,Station sta)
     {
         int res;
         if (isTargetPlayer)
         {
-            res =  (atk + diceNum1) - (tarPlayer.def + diceNum2);
+            res =  (atk + diceNum1) - (tarPlayer.def + diceNum2);//计算战斗伤害
+            res = res <= 0 ? 1 : res;//小于1固定1点伤害
             tarPlayer.currHP -= res;
             return tarPlayer.name + " got " + res + " damage from " + name;
         }
         else
         {
             res = (atk + diceNum1) - (sta.def + diceNum2);
+            res = res <= 0 ? 1 : res;
             sta.setHP(res);
             return tarPlayer.name + "'station got " + res + " damage from " + name;
         }

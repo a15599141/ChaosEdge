@@ -41,12 +41,16 @@ public class CanvasManager : MonoBehaviour
     public GameObject canvasBattle;//战斗界面
     public DiceForBattle diceBattle1;//战斗用骰子1
     public DiceForBattle diceBattle2;//战都用骰子2
+    public DiceForBattle diceRepair;//维修用骰子
     public Text textBattlePlayer1Name;
     public Text textBattlePlayer1Status;
     public Text textBattlePlayer1HP;
     public Text textBattlePlayer2Name;
     public Text textBattlePlayer2Status;
     public Text textBattlePlayer2HP;
+
+    //维修界面
+    public GameObject canvasRepair;
 
     public RawImage itemHighlight;
     public RawImage equipmentHighlight;
@@ -201,6 +205,29 @@ public class CanvasManager : MonoBehaviour
         PlayerManager.Instance.currPlayer.isOnTradeStation = false;
         PlayerManager.Instance.EndTheTurn();
         canvasShop.SetActive(false);
+    }
+
+    //打开维修界面
+    public void OpenCanvasRepair()
+    {
+        canvasRepair.SetActive(true);
+    }
+    //关闭维修界面
+    public void CloseCanvasRepaire()
+    {
+        canvasRepair.SetActive(false);
+    }
+
+    public void Repaire()
+    {
+        //骰子点数大于3修复飞船
+        if (diceRepair.diceNumber>3)
+        {
+            PlayerManager.Instance.currPlayer.Repaire();
+            showMessage("your spaceship repaired");
+            PlayerManager.Instance.EndTheTurn();
+        }
+        Invoke("CloseCanvasRepaire", 2f);
     }
 
     //打开遭遇敌方空间站界面

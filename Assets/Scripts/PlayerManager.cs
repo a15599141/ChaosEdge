@@ -154,9 +154,14 @@ public class PlayerManager : MonoBehaviour
 
     public void EndTheTurn()
     {
+        //清除当前玩家的状态
+        currPlayer.isEngaging = false;
+        currPlayer.isOnTradeStation = false;
         currPlayerIndex = (currPlayerIndex + 1) % playerNumber;//获取下一个玩家下标
         //currPlayerIndex = 0;
         currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();//切换到下一个玩家
+
+        
 
         if (currPlayerIndex == 0)//如果下一个玩家是第一个玩家
         {
@@ -177,8 +182,15 @@ public class PlayerManager : MonoBehaviour
         dice.rollButton.interactable = true;//释放按钮
         isMoving = false;
 
+        //如果当前玩家血量过低，打开维修面板
+        if (currPlayer.getCurrHP() <= 0)
+        {
+            CanvasManager.Instance.OpenCanvasRepair();
+        }
     }
 
+
+    //战斗取消
     public void BattleCancel()
     {
         currPlayer.isEngaging = false;
@@ -190,6 +202,7 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    //交易取消
     public void TradeCancel()
     {
         currPlayer.isOnTradeStation = false;
