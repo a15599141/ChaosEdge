@@ -105,6 +105,7 @@ public class CanvasManager : MonoBehaviour
     public int roundCount;     //游戏轮数计数器
 
     // 音效及BGM
+    public AudioSource BGM;
     public AudioSource battleBGM;
     public AudioSource attackSound;
     public AudioSource defendSound;
@@ -208,6 +209,7 @@ public class CanvasManager : MonoBehaviour
     public void BattleConfirm()
     {
         UpdateBattlePanel(); //更新战斗面板信息
+        BGM.Stop();
         battleBGM.Play(); //放战斗音乐
         canvasBattle.SetActive(true);//显示战斗面板
     }
@@ -350,6 +352,7 @@ public class CanvasManager : MonoBehaviour
 
         showMessage(battleResultMessage); //弹出战斗结果
         battleBGM.Stop(); //战斗BGM停止播放
+        BGM.Play();
 
         if(!currPlayer.BattleTargetIsPlayer&& station.hp<=0) //如果是空间站战斗且战斗结束后空间站血量低于0
         {
