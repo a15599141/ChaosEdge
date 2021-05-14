@@ -7,17 +7,6 @@ public class DiceForBattle : MonoBehaviour
 {
     public int diceNumber; //骰子点数
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void RollDice()
     {
         diceNumber = Random.Range(1, 7); // 生成1到6的随机整数，作为最后的骰子点数

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -13,12 +14,11 @@ public class PlayerManager : MonoBehaviour
     public bool moveAllowed;//判断当前玩家是否可以移动
     int playerNumber; //玩家数量
 
-    public TestedPlayer currPlayer;//当前玩家
+    public Player currPlayer;//当前玩家
     public int currPlayerIndex;
 
     int steps; //当前玩家需要移动的格子数
     int tempSteps;//缓存剩余格子数
-    public bool isMoving; //判断当前玩家是否移动中
 
     float moveSpeed = 10.0f;//移动速度
 
@@ -54,15 +54,15 @@ public class PlayerManager : MonoBehaviour
         //初始化玩家
         for (int i = 0; i < playerNumber; i++)
         {
-            currPlayer = playerObjects[i].GetComponent<TestedPlayer>();
+            currPlayer = playerObjects[i].GetComponent<Player>();
             currPlayer.transform.position = spawnPoints[i].transform.position;
             currPlayer.routePosition = spawnPoints[i].transform.GetSiblingIndex();
-            currPlayer.id = "Player" + (i + 1);
+            currPlayer.id = i + 1;
         }
 
         //选中第一个作为当前玩家
         currPlayerIndex = 0;
-        currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();
+        currPlayer = playerObjects[currPlayerIndex].GetComponent<Player>();
 
 
         //更新UI界面玩家信息
@@ -75,7 +75,6 @@ public class PlayerManager : MonoBehaviour
         if (moveAllowed)
         {
             moveAllowed = false;
-            isMoving = true; 
             steps = dice.diceNumber;
             tempSteps = steps; 
             //Debug.Log("dice number: " + steps);
@@ -117,7 +116,7 @@ public class PlayerManager : MonoBehaviour
         }else if (currPlayer.isEngaging)
         {
             //处理玩家遭遇战斗
-            currPlayer.isTargetPlayer = true;
+            currPlayer.BattleTargetIsPlayer = true;
             CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
         }else
         {
@@ -142,7 +141,7 @@ public class PlayerManager : MonoBehaviour
             Debug.Log("battle or pay " + stations[currPlayer.routePosition].getOwner());
             //EndTheTurn();
             currPlayer.tarPlayer = stations[currPlayer.routePosition].getOwner();//设定当前玩家的目标玩家为空间站所有者
-            currPlayer.isTargetPlayer = false;
+            currPlayer.BattleTargetIsPlayer = false;
             CanvasManager.Instance.OpenCanvasEnemyStation();
         }
     }
@@ -159,15 +158,12 @@ public class PlayerManager : MonoBehaviour
         currPlayer.isOnTradeStation = false;
         currPlayerIndex = (currPlayerIndex + 1) % playerNumber;//获取下一个玩家下标
         //currPlayerIndex = 0;
-        currPlayer = playerObjects[currPlayerIndex].GetComponent<TestedPlayer>();//切换到下一个玩家
-
-        
+        currPlayer = playerObjects[currPlayerIndex].GetComponent<Player>();//切换到下一个玩家
 
         if (currPlayerIndex == 0)//如果下一个玩家是第一个玩家
         {
-            //回合数 + 1
-            CanvasManager.Instance.roundCount++;
-
+            CanvasManager.Instance.roundCount++; //回合数 + 1
+            CanvasManager.Instance.roundText.text = "ROUND " + CanvasManager.Instance.roundCount.ToString(); //更新回合数
             //计算玩家获得能量根据拥有的空间站数量
             foreach (Station sta in stations)
             {
@@ -177,10 +173,9 @@ public class PlayerManager : MonoBehaviour
                 }
             }
         }
-        CanvasManager.Instance.UpdatePlayerPanel();
-        CanvasManager.Instance.UpdatePlayerBag();
+        CanvasManager.Instance.UpdatePlayerPanel(); // 更新玩家属性面板
+        CanvasManager.Instance.UpdatePlayerBag(); // 更新背包界面
         dice.rollButton.interactable = true;//释放按钮
-        isMoving = false;
 
         //如果当前玩家血量过低，打开维修面板
         if (currPlayer.getCurrHP() <= 0)
@@ -188,7 +183,6 @@ public class PlayerManager : MonoBehaviour
             CanvasManager.Instance.OpenCanvasRepair();
         }
     }
-
 
     //战斗取消
     public void BattleCancel()

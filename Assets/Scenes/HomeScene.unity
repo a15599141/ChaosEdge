@@ -210,7 +210,7 @@ GameObject:
   - component: {fileID: 20417450}
   - component: {fileID: 20417449}
   m_Layer: 5
-  m_Name: Player1 (1)
+  m_Name: Player2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 73ccb6003e91e9748ba527080740e1be, type: 3}
+  m_Texture: {fileID: 2800000, guid: 6aa4318ababcb384cbed4b335949c2a2, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -490,7 +490,7 @@ GameObject:
   - component: {fileID: 40913964}
   - component: {fileID: 40913963}
   m_Layer: 5
-  m_Name: Dropdown (2)
+  m_Name: Dropdown3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1591,7 +1591,7 @@ GameObject:
   - component: {fileID: 306946331}
   - component: {fileID: 306946330}
   m_Layer: 5
-  m_Name: Dropdown (3)
+  m_Name: Dropdown4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3162,7 +3162,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: a72ee106fb8b92b4eac74293454cd664, type: 3}
+  m_Texture: {fileID: 2800000, guid: 16f0374eb9acb1343b6a5225e4e5510b, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -3868,7 +3868,7 @@ GameObject:
   - component: {fileID: 758065821}
   - component: {fileID: 758065820}
   m_Layer: 5
-  m_Name: Dropdown (1)
+  m_Name: Dropdown2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7454,7 +7454,7 @@ GameObject:
   - component: {fileID: 1477530025}
   - component: {fileID: 1477530024}
   m_Layer: 5
-  m_Name: Player1 (3)
+  m_Name: Player4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7499,7 +7499,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 04981e2268ae4ee4ba71e2c5a544260a, type: 3}
+  m_Texture: {fileID: 2800000, guid: f1b3711fe93460e4f96200295e41074d, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -8984,7 +8984,7 @@ GameObject:
   - component: {fileID: 1648595935}
   - component: {fileID: 1648595934}
   m_Layer: 5
-  m_Name: Player1 (2)
+  m_Name: Player3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9029,7 +9029,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: be176c329f497644a8fdc59a827a24f4, type: 3}
+  m_Texture: {fileID: 2800000, guid: b7753aa6f271f9f4bb3568b80d7246e0, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -9480,7 +9480,7 @@ GameObject:
   - component: {fileID: 1668953731}
   - component: {fileID: 1668953730}
   m_Layer: 5
-  m_Name: Dropdown
+  m_Name: Dropdown1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

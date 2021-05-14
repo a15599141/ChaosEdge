@@ -12,10 +12,10 @@ public class CanvasTesting : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        TestedPlayer p1 = PlayerManager.Instance.playerObjects[0].GetComponent<TestedPlayer>();
-        TestedPlayer p2 = PlayerManager.Instance.playerObjects[1].GetComponent<TestedPlayer>();
-        TestedPlayer p3 = PlayerManager.Instance.playerObjects[2].GetComponent<TestedPlayer>();
-        TestedPlayer p4 = PlayerManager.Instance.playerObjects[3].GetComponent<TestedPlayer>();
+        Player p1 = PlayerManager.Instance.playerObjects[0].GetComponent<Player>();
+        Player p2 = PlayerManager.Instance.playerObjects[1].GetComponent<Player>();
+        Player p3 = PlayerManager.Instance.playerObjects[2].GetComponent<Player>();
+        Player p4 = PlayerManager.Instance.playerObjects[3].GetComponent<Player>();
 
         p1EnergyPlus.onClick.AddListener(() => { p1.setEnergy(5); CanvasManager.Instance.UpdatePlayerPanel(); });
         p2EnergyPlus.onClick.AddListener(() => { p2.setEnergy(5); CanvasManager.Instance.UpdatePlayerPanel(); });
@@ -31,11 +31,5 @@ public class CanvasTesting : MonoBehaviour
         p2EnergySet.onClick.AddListener(() => { int e = int.Parse(p2InputFiled.text); p2.DirectSetEnergy(e); CanvasManager.Instance.UpdatePlayerPanel(); });
         p3EnergySet.onClick.AddListener(() => { int e = int.Parse(p3InputFiled.text); p3.DirectSetEnergy(e); CanvasManager.Instance.UpdatePlayerPanel(); });
         p4EnergySet.onClick.AddListener(() => { int e = int.Parse(p4InputFiled.text); p4.DirectSetEnergy(e); CanvasManager.Instance.UpdatePlayerPanel(); });
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
     }
 }

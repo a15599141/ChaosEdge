@@ -21,10 +21,10 @@ public struct Equipment
     public int level;
     public int ATK;
     public int DEF;
-    public int EVO;
+    public int EVD;
     public RawImage image;
     public Equipment(string n, int e, string d, int l, int A, int D, int E, RawImage i)
-    { name = n; energyCost = e; description = d; level = l; ATK = A; DEF = D; EVO = E; image = i; }
+    { name = n; energyCost = e; description = d; level = l; ATK = A; DEF = D; EVD = E; image = i; }
 };
 public struct SpaceShip
 {
@@ -35,7 +35,7 @@ public struct SpaceShip
     public int HP;
     public int ATK;
     public int DEF;
-    public int EVO;
+    public int EVD;
     public SpaceShip(string n, int e, string d, int l, int H, int A, int D, int E)
-    { name = n; energyCost = e; description = d; level = l; HP = H; ATK = A; DEF = D; EVO = E; }
+    { name = n; energyCost = e; description = d; level = l; HP = H; ATK = A; DEF = D; EVD = E; }
 };

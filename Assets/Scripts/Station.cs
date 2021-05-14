@@ -1,17 +1,17 @@
 ﻿public class Station
 {
-    TestedPlayer owner; //所有者, player1 = 1,player2 = 2, ...
-    int level;//等级
+    Player owner; //所有者, player1 = 1,player2 = 2, ...
+    public int level;//等级
     public int def;//防御
     public int atk;//攻击
-    int maxHp;//血量最大值
-    int hp;//血量
-    int energyPerTurn;//每回合产生能源
+    public int maxHp;//血量最大值
+    public int hp;//血量
+    public int energyPerTurn;//每回合产生能源
 
-    public Station(TestedPlayer ow)
+    public Station(Player ow)
     {
         owner = ow;
-        level = 0;
+        level = 1;
         atk = 0;
         def = 2;
         maxHp = 6;
@@ -19,11 +19,11 @@
         energyPerTurn = 2;
     }
 
-    public bool isOwner(TestedPlayer tp)
+    public bool isOwner(Player tp)
     {
         return owner == tp;
     }
-    public TestedPlayer getOwner()
+    public Player getOwner()
     {
         return owner;
     }
@@ -54,5 +54,13 @@
     public void setHP(int h)
     {
         this.hp -= h;
+    }
+    public void setHPToMax()
+    {
+        hp = maxHp;
+    }
+    public void setLevel(int l)
+    {
+        this.level = l;
     }
 }
