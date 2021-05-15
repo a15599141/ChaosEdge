@@ -9,5 +9,6 @@ public enum ConfirmType
     isTradeStation,
     energyNotEnough,
     itemBagIsFull,
-    equipmentBagIsFull
+    equipmentBagIsFull,
+    spaceShipPurchaseError
 }

@@ -175,7 +175,8 @@ public class PlayerManager : MonoBehaviour
         }
         CanvasManager.Instance.UpdatePlayerPanel(); // 更新玩家属性面板
         CanvasManager.Instance.UpdatePlayerBag(); // 更新背包界面
-        dice.rollButton.interactable = true;//释放按钮
+        CanvasManager.Instance.playerUseItemButton.interactable = true;//释放回合开始时使用道具按钮
+        dice.rollButton.interactable = true;//释放摇骰子按钮
 
         //如果当前玩家血量过低，打开维修面板
         if (currPlayer.getCurrHP() <= 0)

@@ -84,6 +84,12 @@ public class Player : MonoBehaviour
         if (e >= 0)energy = e;
     }
 
+    public void setHP(int hp)  //扣钱e设置负数，加钱设置e为正数
+    {
+        if(currHP+hp>maxHP) currHP = maxHP;
+        else currHP += hp;
+    }
+
     public int getMaxHP()
     {
         return maxHP;
@@ -110,7 +116,14 @@ public class Player : MonoBehaviour
     {
         currHP = maxHP;
     }
-
+    public void GetNewSpaceShip(int m, int a, int d, int e)
+    {
+        maxHP = m; 
+        currHP = m;
+        atk = a;
+        def = d;
+        evd = e;
+    }
     // 空间站战斗
     public string Battle(int diceNum1, int diceNum2,Station sta)
     {

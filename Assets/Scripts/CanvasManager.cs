@@ -68,6 +68,7 @@ public class CanvasManager : MonoBehaviour
     //维修界面
     public GameObject canvasRepair;
 
+    //商店UI及商品选择高光
     public RawImage itemHighlight;
     public RawImage equipmentHighlight;
     public RawImage spaceShipHighlight;
@@ -80,6 +81,7 @@ public class CanvasManager : MonoBehaviour
     List<Item> itemList = new List<Item>();
     List<Equipment> equipmentList = new List<Equipment>();
     List<SpaceShip> spaceShipList = new List<SpaceShip>();
+    public static int maxSpaceShipOfOneColor = 3; //定义每个颜色的玩家可购买的飞船种类数量
 
     //储存商店物品图片，储存顺序查看inspector
     public RawImage[] itemImages; //道具图片
@@ -96,9 +98,14 @@ public class CanvasManager : MonoBehaviour
     public RawImage[] bagImages; // UI界面的背包图片
     public static int itemBagMaxCapacity = 2;//背包道具容量
     public static int equipmentBagMaxCapacity = 3;//背包战斗装备容量
-    public Button[] useItemButtons; // 使用道具按钮
-    public Button[] useEquipmentButtons; // 使用战斗装备按钮
-    public Button cancelUseButton; // 取消使用按钮
+    public Button[] useItemButtons; // 背包道具区左上角的使用按钮
+    public Button[] useEquipmentButtons; // 背包战斗装备区左上角的使用按钮
+    public Button cancelItemUseButton; // 取消道具使用按钮
+    public Button confirmItemUseButton; // 确认回合开始道具使用按钮
+    public Button cancelEquipButton; // 取消装备使用按钮
+    public Button playerUseItemButton; //玩家回合开始时，选择使用道具按钮
+    public int playerUsedItemIdx; //记录当前玩家回合开始时，使用的道具在背包里的索引，用于道具生效及背包移除
+    public bool playerHasUsedItem; // 记录玩家回合开始时是否使用道具
 
     // 回合数
     public TMP_Text roundText;  //游戏轮数显示器
@@ -119,6 +126,7 @@ public class CanvasManager : MonoBehaviour
     void Start()
     {
         roundCount = 1; //初始回合为1
+        PlayerUseItemEvent(); // 回合开始时使用道具事件初始化
         TradeStationInitialize(); // 商店初始化
         BattleInitialize(); // 战斗系统初始化
 
@@ -137,7 +145,7 @@ public class CanvasManager : MonoBehaviour
     }
     IEnumerator delayMessage()
     {
-        yield return new WaitForSeconds(3.0f); //消息弹窗显示3秒
+        yield return new WaitForSeconds(2.5f); //消息弹窗显示2.5秒
         canvasMessage.SetActive(false);
     }
     public void IsConfirm(ConfirmType type)
@@ -178,6 +186,12 @@ public class CanvasManager : MonoBehaviour
                 buttonConfirm.onClick.AddListener(ConfirmExit);
                 buttonCancel.onClick.AddListener(ConfirmExit);
                 break;
+            case ConfirmType.spaceShipPurchaseError:
+                textConfirm.text = "You only can purchase the spaceships with your own color";
+                errorSound.Play();
+                buttonConfirm.onClick.AddListener(ConfirmExit);
+                buttonCancel.onClick.AddListener(ConfirmExit);
+                break;
         }
     }
 
@@ -195,7 +209,7 @@ public class CanvasManager : MonoBehaviour
         }
         else
         {
-            IsConfirm(ConfirmType.energyNotEnough);
+            showMessage("Insufficient energy ! Construction failed");
         }
         ConstructCancel();
     }
@@ -262,17 +276,27 @@ public class CanvasManager : MonoBehaviour
         canvasRepair.SetActive(false);
     }
 
+    public void DelayRepaire()
+    {
+        Invoke("Repaire", 2.0f); //延迟2秒判断飞船是否修复，保证骰子动画播放完毕
+    }
     public void Repaire()
     {
-        //骰子点数大于3修复飞船
-        if (diceForRepair.diceNumber>3)
+        if (diceForRepair.diceNumber>3) //如果骰子点数大于3，修复飞船
         {
             repairSound.Play(); // 播放维修音效
-            PlayerManager.Instance.currPlayer.Repaire();
-            showMessage("your spaceship repaired");
-            PlayerManager.Instance.EndTheTurn();
+            PlayerManager.Instance.currPlayer.Repaire(); //飞船维修血条拉满
+            UpdatePlayerPanel();
+            CloseCanvasRepaire();
+            showMessage("your spaceship has repaired!"); // 维修成功弹窗提示
         }
-        Invoke("CloseCanvasRepaire", 2f);
+        else //如果骰子点数小于等于3，维修失败
+        {
+            errorSound.Play(); // 播放维修失败音效
+            CloseCanvasRepaire();
+            showMessage("Failed to repaire !");  // 维修失败弹窗提示
+            PlayerManager.Instance.EndTheTurn(); // 直接结束回合，跳到下一个玩家
+        }
     }
 
     //打开遭遇敌方空间站界面
@@ -303,7 +327,84 @@ public class CanvasManager : MonoBehaviour
             showMessage("not enough energy!");
         }
     }
+    public void PlayerUseItemEvent() // 回合开始时使用道具事件
+    {
+        playerUsedItemIdx = itemBagMaxCapacity; // 初始化索引
+        playerUseItemButton.onClick.AddListener(() => // 使用道具按钮添加监听事件
+        {
+            playerUseItemButton.interactable = false;
+            confirmItemUseButton.gameObject.SetActive(true); //显示确认使用按钮
+            confirmItemUseButton.interactable = false; //未选择使用道具时，确认按钮将不可用
+            cancelItemUseButton.gameObject.SetActive(true); // 显示取消使用按钮
 
+            Player currPlayer = PlayerManager.Instance.currPlayer;
+            for (int i = 0; i < currPlayer.playerItemBag.Count; i++)
+            {
+                useItemButtons[i].onClick.RemoveAllListeners(); // 移除当前背包使用按钮的监听事件
+                useItemButtons[i].gameObject.SetActive(true); // 根据背包道具数量启用对应使用按钮
+            }
+            useItemButtons[0].onClick.AddListener(() => // 点击背包使用按钮，更新战斗界面equipment信息
+            {
+                playerUsedItemIdx = 0; // 记录当前使用的道具在背包的索引
+                playerHasUsedItem = true; 
+                useItemButtons[0].interactable = false; 
+                useItemButtons[1].interactable = true;
+                confirmItemUseButton.interactable = true; //选择使用道具时，确认按钮变为可用
+            });
+            useItemButtons[1].onClick.AddListener(() => // 点击背包使用按钮，更新战斗界面equipment信息
+            {
+                playerUsedItemIdx = 1; // 记录当前使用的道具在背包的索引
+                playerHasUsedItem = true;
+                useItemButtons[1].interactable = false;
+                useItemButtons[0].interactable = true;
+                confirmItemUseButton.interactable = true; //未选择使用道具时，确认按钮变为可用
+            });
+        });
+
+        confirmItemUseButton.onClick.AddListener(() => // 确认使用道具按钮添加监听事件
+        {
+            Player currPlayer = PlayerManager.Instance.currPlayer;
+            if (currPlayer.getCurrHP()==currPlayer.getMaxHP())//如果当前血量为满，将不可使用道具
+            {
+                showMessage("You space ship is on optimal state!");//弹出提示框
+                cancelItemUseButton.onClick.Invoke();
+            }
+            else
+            {
+                useItemButtons[0].gameObject.SetActive(false); // 隐藏道具1使用按钮
+                useItemButtons[0].interactable = true; // 道具1使用按钮重新变为默认可用
+                useItemButtons[1].gameObject.SetActive(false);// 隐藏道具2使用按钮
+                useItemButtons[1].interactable = true;// 道具2使用按钮重新变为默认可用
+                playerHasUsedItem = false;
+
+                cancelItemUseButton.gameObject.SetActive(false);//隐藏取消使用道具
+                confirmItemUseButton.interactable = false; //取消使用道具时，确认按钮重新变为默认不可用
+                confirmItemUseButton.gameObject.SetActive(false); //隐藏确认使用道具
+
+                currPlayer.setHP(currPlayer.playerItemBag[playerUsedItemIdx].HP); // 使用道具给飞船加血
+                showMessage("You have recover you space ship by " + currPlayer.playerItemBag[playerUsedItemIdx].HP);//弹出道具使用提示框
+                currPlayer.playerItemBag.RemoveAt(playerUsedItemIdx); //将道具从背包移除
+                playerUsedItemIdx = itemBagMaxCapacity; //初始化索引
+                UpdatePlayerPanel();//刷新玩家面板
+                UpdatePlayerBag(); // 刷新背包界面
+            }
+        });
+
+        cancelItemUseButton.onClick.AddListener(() => // 取消使用道具按钮添加监听事件
+        {
+            useItemButtons[0].gameObject.SetActive(false); // 隐藏道具1使用按钮
+            useItemButtons[0].interactable = true; // 道具1使用按钮重新变为默认可用
+            useItemButtons[1].gameObject.SetActive(false);// 隐藏道具2使用按钮
+            useItemButtons[1].interactable = true;// 道具2使用按钮重新变为默认可用
+            playerUsedItemIdx = itemBagMaxCapacity; //初始化索引
+            playerHasUsedItem = false;
+
+            cancelItemUseButton.gameObject.SetActive(false);//隐藏取消使用道具
+            confirmItemUseButton.interactable = false; //取消使用道具时，确认按钮重新变为默认不可用
+            confirmItemUseButton.gameObject.SetActive(false); //隐藏确认使用道具
+            playerUseItemButton.interactable = true;
+        });
+    }
     public void EndBattle() // 结算战斗
     {
         Player currPlayer = PlayerManager.Instance.currPlayer;//获取当前玩家
@@ -342,9 +443,9 @@ public class CanvasManager : MonoBehaviour
         }
 
         canvasBattle.SetActive(false);//关闭战斗界面
-        BattleAttackButton.enabled = true; // 启用攻击按钮
-        AttackerEquipButton.enabled = true; // 启用攻击者使用装备按钮
-        DefenderEquipButton.enabled = true; // 启用防御者使用装备按钮
+        BattleAttackButton.interactable = true; // 启用攻击按钮
+        AttackerEquipButton.interactable = true; // 启用攻击者使用装备按钮
+        DefenderEquipButton.interactable = true; // 启用防御者使用装备按钮
         battleEquipmentImage1.texture = null;
         battleEquipmentImage2.texture = null;
         battleEquipmentEffect1.text = "Not  equips";
@@ -462,7 +563,7 @@ public class CanvasManager : MonoBehaviour
             textBattlePlayer2HP.text = station.getHP() + " / " + station.getMaxHP();
             textBattlePlayer2Status.text = "ATK:" + station.getATK() + "\n" +
                                            "DEF:" + station.getDEF();
-            if (station.getOwner().id == 1) battleSpaceShipImage2.texture = stationRedImages[station.level - 1].texture;
+            if (station.getOwner().id == 1) battleSpaceShipImage2.texture = stationRedImages[station.level - 1].texture; 
             if (station.getOwner().id == 2) battleSpaceShipImage2.texture = stationYellowImages[station.level - 1].texture;
             if (station.getOwner().id == 3) battleSpaceShipImage2.texture = stationBlueImages[station.level - 1].texture;
             if (station.getOwner().id == 4) battleSpaceShipImage2.texture = stationGreenImages[station.level - 1].texture;
@@ -475,32 +576,33 @@ public class CanvasManager : MonoBehaviour
     {
         AttackerUsedEquipmentIdx = equipmentBagMaxCapacity; //初始化该索引，用于判定玩家是否使用了装备
         DefenderUsedEquipmentIdx = equipmentBagMaxCapacity; //初始化该索引，用于判定玩家是否使用了装备
-        BattleDefendButton.enabled = false;  // 禁用防御按钮
-        BattleEvadeButton.enabled = false;   // 禁用闪避按钮
-        DefenderEquipButton.enabled = false; //禁用防御者使用装备按钮
+        BattleDefendButton.interactable = false;  // 禁用防御按钮
+        BattleEvadeButton.interactable = false;   // 禁用闪避按钮
+        DefenderEquipButton.interactable = false; //禁用防御者使用装备按钮
 
         BattleAttackButton.onClick.AddListener(() => // 攻击按钮添加监听事件
         {
             diceForAttack.RollDice(); // 摇攻击骰子
-            BattleAttackButton.enabled = false; // 禁用攻击按钮
-            AttackerEquipButton.enabled = false; // 禁用使用装备按钮
+            BattleAttackButton.interactable = false; // 禁用攻击按钮
+            AttackerEquipButton.interactable = false; // 禁用使用装备按钮
             for (int i = 0; i < equipmentBagMaxCapacity; i++) //禁用背包使用按钮
             {
                 useEquipmentButtons[i].gameObject.SetActive(false);
-                cancelUseButton.gameObject.SetActive(false);
+                cancelEquipButton.gameObject.SetActive(false);
             }
-            BattleDefendButton.enabled = true; // 启用防御按钮
-            BattleEvadeButton.enabled = true;  // 启用闪避按钮
-            DefenderEquipButton.enabled = true;// 启用防御者使用装备按钮
+            BattleDefendButton.interactable = true; // 启用防御按钮
+            BattleEvadeButton.interactable = true;  // 启用闪避按钮
+            DefenderEquipButton.interactable = true;// 启用防御者使用装备按钮
             Player attacker = PlayerManager.Instance.currPlayer;
             if (!attacker.BattleTargetIsPlayer) // 如果攻击的是空间站
                 Invoke("EndBattle", 2.5f); // 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
+
         });
 
         AttackerEquipButton.onClick.AddListener(() => //攻击者使用装备按钮添加监听事件
         {
-            AttackerEquipButton.enabled = false; // 禁用使用装备按钮
-            cancelUseButton.gameObject.SetActive(true); // 启用‘取消使用’按钮
+            AttackerEquipButton.interactable = false; // 禁用使用装备按钮
+            cancelEquipButton.gameObject.SetActive(true); // 启用‘取消使用’按钮
             Player attacker = PlayerManager.Instance.currPlayer;
             for (int i = 0; i < attacker.playerEquipmentBag.Count; i++)
             {
@@ -535,8 +637,8 @@ public class CanvasManager : MonoBehaviour
 
         DefenderEquipButton.onClick.AddListener(() => //防御者使用装备按钮添加监听事件
         {
-            DefenderEquipButton.enabled = false; // 禁用使用装备按钮
-            cancelUseButton.gameObject.SetActive(true); // 启用‘取消使用’按钮
+            DefenderEquipButton.interactable = false; // 禁用使用装备按钮
+            cancelEquipButton.gameObject.SetActive(true); // 启用‘取消使用’按钮
             Player defender = PlayerManager.Instance.currPlayer.tarPlayer;
             UpdatePlayerBag(defender); // 背包更新为防御者的
             for (int i = 0; i < defender.playerEquipmentBag.Count; i++)
@@ -573,11 +675,11 @@ public class CanvasManager : MonoBehaviour
         BattleDefendButton.onClick.AddListener(() => // 防御按钮添加监听事件
         {
             diceForDefend.RollDice(); // 摇防御骰子
-            BattleDefendButton.enabled = false; // 禁用防御按钮
-            BattleEvadeButton.enabled = false; // 禁用闪避按钮
-            DefenderEquipButton.enabled = false; // 禁用防御按钮
+            BattleDefendButton.interactable = false; // 禁用防御按钮
+            BattleEvadeButton.interactable = false; // 禁用闪避按钮
+            DefenderEquipButton.interactable = false; // 禁用防御按钮
             for (int i = 0; i < equipmentBagMaxCapacity; i++) useEquipmentButtons[i].gameObject.SetActive(false);//隐藏背包使用按钮
-            cancelUseButton.gameObject.SetActive(false);//隐藏‘取消使用’按钮
+            cancelEquipButton.gameObject.SetActive(false);//隐藏‘取消使用’按钮
             DefenderChooseDefend = true; //记录防御者选择防御
             AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
             DefenderIsEquiped = DefenderUsedEquipmentIdx < equipmentBagMaxCapacity; //记录防御者是否使用装备
@@ -587,35 +689,36 @@ public class CanvasManager : MonoBehaviour
         BattleEvadeButton.onClick.AddListener(() => // 闪避按钮添加监听事件
         {
             diceForDefend.RollDice(); // 摇防御骰子
-            BattleDefendButton.enabled = false; // 禁用防御按钮
-            BattleEvadeButton.enabled = false; // 禁用闪避按钮
+            BattleDefendButton.interactable = false; // 禁用防御按钮
+            BattleEvadeButton.interactable = false; // 禁用闪避按钮
+            DefenderEquipButton.interactable = false; // 禁用防御者使用装备按钮
             for (int i = 0; i < equipmentBagMaxCapacity; i++) useEquipmentButtons[i].gameObject.SetActive(false);//隐藏背包使用按钮
-            cancelUseButton.gameObject.SetActive(false);//隐藏‘取消使用’按钮
+            cancelEquipButton.gameObject.SetActive(false);//隐藏‘取消使用’按钮
             DefenderChooseDefend = false; //记录防御者选择闪避
             AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
             DefenderIsEquiped = DefenderUsedEquipmentIdx < equipmentBagMaxCapacity; //记录防御者是否使用装备
             Invoke("EndBattle", 2.5f); // 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
         });
 
-        cancelUseButton.onClick.AddListener(() => // 取消使用按钮添加监听事件
+        cancelEquipButton.onClick.AddListener(() => // 取消使用按钮添加监听事件
         {
-            if (BattleAttackButton.isActiveAndEnabled) // 如果是攻击者取消使用
+            if (BattleAttackButton.interactable) // 如果是攻击者取消使用
             {
                 battleEquipmentImage1.texture = null;
                 battleEquipmentEffect1.text = "Not  equips";
-                AttackerEquipButton.enabled = true; // 启用使用装备按钮
+                AttackerEquipButton.interactable = true; // 启用使用装备按钮
                 AttackerUsedEquipmentIdx = equipmentBagMaxCapacity; // 重新初始化索引
             }
             else // 如果是防御者取消使用
             {
                 battleEquipmentImage2.texture = null;
                 battleEquipmentEffect2.text = "Not  equips";
-                DefenderEquipButton.enabled = true;
+                DefenderEquipButton.interactable = true;
                 DefenderUsedEquipmentIdx = equipmentBagMaxCapacity; // 重新初始化索引
             }
 
             for (int i = 0; i < equipmentBagMaxCapacity; i++) useEquipmentButtons[i].gameObject.SetActive(false);//隐藏背包使用按钮
-            cancelUseButton.gameObject.SetActive(false);
+            cancelEquipButton.gameObject.SetActive(false);
         });
 
     }
@@ -635,7 +738,7 @@ public class CanvasManager : MonoBehaviour
         equipmentList.Add(new Equipment("Engine1", 2, "Grant your spaceship a +1 dodge value this turn. It consumes two points of energy.", 1, 0, 0, 1, equipmentImages[6]));
         equipmentList.Add(new Equipment("Engine2", 7, "Grant your spaceship a +2 dodge value this turn. It consumes seven points of energy.", 2, 0, 0, 2, equipmentImages[7]));
         equipmentList.Add(new Equipment("Engine3", 10, "Grant your spaceship a +3 dodge value this turn. It consumes ten points of energy.", 3, 0, 0, 3, equipmentImages[8]));
-        //添加SpaceShip到列表//
+        //添加SpaceShip到列表
         spaceShipList.Add(new SpaceShip("SpaceShip1", 20, "Replace your current spaceship with the following properties of Level 1 spaceship that costs 20 Energy", 1, 8,  4, 3, 2));
         spaceShipList.Add(new SpaceShip("SpaceShip2", 25, "Replace your current spaceship with the following properties of Level 2 spaceship that costs 25 Energy", 2, 10, 6, 5, 4));
         spaceShipList.Add(new SpaceShip("SpaceShip3", 30, "Replace your current spaceship with the following properties of Level 3 spaceship that costs 30 Energy.", 3, 12, 8, 7, 6));
@@ -716,10 +819,12 @@ public class CanvasManager : MonoBehaviour
                 UpdatePlayerBag(); // 刷新背包
             });
         });
+
+        // 商店飞船按钮添加点击事件
         foreach (Button spaceShip in spaceShips) spaceShip.onClick.AddListener(() =>
         {
-            spaceShipHighlight.transform.position = spaceShip.transform.position;
-            int idx = Array.IndexOf(spaceShips, spaceShip);
+            spaceShipHighlight.transform.position = spaceShip.transform.position; // 选中飞船高亮显示
+            int idx = Array.IndexOf(spaceShips, spaceShip); //获取选中飞船在飞船列表的索引
             string str = "CanvasTradeStation/PanelForDrag/SpaceShips/Detail/"; //详情的目录
             //点击商店物体后，更新右侧物品详情（飞船）
             GameObject.Find(str + "Name").GetComponent<Text>().text = spaceShipList[idx].name;
@@ -735,24 +840,19 @@ public class CanvasManager : MonoBehaviour
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(() =>
             {
-                int i = PlayerManager.Instance.currPlayerIndex;
-                Player currentPlayer = PlayerManager.Instance.playerObjects[i].GetComponent<Player>();//获取当前玩家对象
-                if (currentPlayer.setEnergy(-spaceShipList[idx].energyCost)) // 如果买得起
-                {   // 更新玩家面板
-                    playerPanels[i].transform.GetChild(0).GetComponent<RawImage>().texture
-                     = spaceShip.GetComponent<RawImage>().texture;
-                    playerPanels[i].transform.GetChild(2).GetComponent<Text>().text
-                     = "Energy: " + currentPlayer.getEnergy();
-                    playerPanels[i].transform.GetChild(3).GetComponent<Text>().text
-                        = "HP: " + currentPlayer.getCurrHP() + "/" + spaceShipList[idx].HP;
-                    playerPanels[i].transform.GetChild(4).GetComponent<Text>().text
-                        = "ATK: " + spaceShipList[idx].ATK;
-                    playerPanels[i].transform.GetChild(5).GetComponent<Text>().text
-                        = "DEF: " + spaceShipList[idx].DEF;
-                    playerPanels[i].transform.GetChild(6).GetComponent<Text>().text
-                        = "EVD: " + spaceShipList[idx].EVD;
+                Player currentPlayer = PlayerManager.Instance.currPlayer;//获取当前玩家对象
+                if (currentPlayer.id*maxSpaceShipOfOneColor>=idx+1 && idx>=(currentPlayer.id-1)*maxSpaceShipOfOneColor) // 如果购买的是对应颜色的飞船
+                {
+                    if (currentPlayer.setEnergy(-spaceShipList[idx].energyCost)) // 如果买得起
+                    {
+                        playerPanels[currentPlayer.id - 1].transform.GetChild(0).GetComponent<RawImage>().texture = spaceShip.GetComponent<RawImage>().texture;//更新图片
+                        currentPlayer.GetNewSpaceShip(spaceShipList[idx].HP, spaceShipList[idx].ATK, spaceShipList[idx].DEF, spaceShipList[idx].EVD);
+                        UpdatePlayerPanel(); // 更新玩家面板
+                    }
+                    else IsConfirm(ConfirmType.energyNotEnough); // 如果能源不够,弹出提示框
                 }
-                else IsConfirm(ConfirmType.energyNotEnough); // 如果能源不够,弹出提示框
+                else IsConfirm(ConfirmType.spaceShipPurchaseError); // 如果购买的飞船颜色不对应,弹出提示框
+
             });
         });
 
