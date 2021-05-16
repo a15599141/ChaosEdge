@@ -93,6 +93,8 @@ public class CanvasManager : MonoBehaviour
     public RawImage[] stationYellowImages;
     public RawImage[] stationBlueImages;
     public RawImage[] stationGreenImages;
+    public GameObject StationDefaultMaterial;
+    public bool stationIsDestoryedByPlayer;
 
     //定义背包
     public RawImage[] bagImages; // UI界面的背包图片
@@ -120,7 +122,7 @@ public class CanvasManager : MonoBehaviour
     public AudioSource getDamageSound;
     public AudioSource repairSound;
     public AudioSource errorSound;
-
+    public AudioSource updateSound;
 
     // Start is called before the first frame update
     void Start()
@@ -202,24 +204,32 @@ public class CanvasManager : MonoBehaviour
         if (player.setEnergy(-5))
         {
             Material ma = player.transform.GetChild(0).GetComponent<MeshRenderer>().material;// 获取玩家颜色
-            Transform tm = Route.Instacnce.childNodeList[player.routePosition].transform.GetChild(0);//获取玩家要建造的位置
-            tm.GetComponent<MeshRenderer>().material = ma;//覆盖玩家颜色到位置
-            //PlayerManager.Instance.stations[player.routePosition].setHPToMax(); //新占领的空间站补满血
+            Route.Instacnce.childNodeList[player.routePosition].GetChild(0).GetComponent<MeshRenderer>().material = ma;//空间站变为玩家颜色
             PlayerManager.Instance.stations[player.routePosition] = new Station(player);//添加入station集合
+            PlayerManager.Instance.stations[player.routePosition].setHPToMax(); //新占领的空间站补满血
+            PlayerManager.Instance.EndTheTurn(); //结束回合
+            ConfirmExit();
         }
         else
         {
             showMessage("Insufficient energy ! Construction failed");
+            ConstructCancel();
         }
-        ConstructCancel();
     }
 
-    public void ConstructCancel()
+    public void ConstructCancel() // 玩家取消建造
     {
+        Player currPlayer = PlayerManager.Instance.currPlayer;
+        if (stationIsDestoryedByPlayer) // 如果空间站被玩家打爆
+        {
+            Material defaultMaterial = StationDefaultMaterial.GetComponent<MeshRenderer>().material;//获取默认空间站材质
+            Route.Instacnce.childNodeList[currPlayer.routePosition].transform.GetChild(0).GetComponent<MeshRenderer>().material = defaultMaterial;//空间站材质恢复为默认
+            stationIsDestoryedByPlayer = false;
+            PlayerManager.Instance.stations[currPlayer.routePosition] = null; //将空间站从空间站列表移除
+        }
         PlayerManager.Instance.EndTheTurn();
         ConfirmExit();
     }
-
     public void BattleConfirm()
     {
         UpdateBattlePanel(); //更新战斗面板信息
@@ -227,7 +237,6 @@ public class CanvasManager : MonoBehaviour
         battleBGM.Play(); //放战斗音乐
         canvasBattle.SetActive(true);//显示战斗面板
     }
-
     public void BattleCancel()
     {
         PlayerManager.Instance.BattleCancel();
@@ -278,7 +287,7 @@ public class CanvasManager : MonoBehaviour
 
     public void DelayRepaire()
     {
-        Invoke("Repaire", 2.0f); //延迟2秒判断飞船是否修复，保证骰子动画播放完毕
+        Invoke("Repaire", 2.5f); //延迟2.5秒判断飞船是否修复，保证骰子动画播放完毕
     }
     public void Repaire()
     {
@@ -437,6 +446,7 @@ public class CanvasManager : MonoBehaviour
             station = PlayerManager.Instance.stations[currPlayer.routePosition];//玩家所在空间站
             battleResultMessage = currPlayer.Battle(diceForAttack.diceNumber, diceForDefend.diceNumber, station); //处理空间站战斗，返回结果信息
             // 重新启用相关按钮
+            stationIsDestoryedByPlayer = false; // 初始化
             BattleDefendButton.gameObject.SetActive(true);
             BattleEvadeButton.gameObject.SetActive(true);
             DefenderEquipButton.gameObject.SetActive(true);
@@ -455,13 +465,14 @@ public class CanvasManager : MonoBehaviour
         battleBGM.Stop(); //战斗BGM停止播放
         BGM.Play();
 
-        if(!currPlayer.BattleTargetIsPlayer&& station.hp<=0) //如果是空间站战斗且战斗结束后空间站血量低于0
+        if(!currPlayer.BattleTargetIsPlayer && station.hp<=0) //如果是空间站战斗且战斗结束后空间站血量低于0
         {
+            stationIsDestoryedByPlayer = true;
+            showMessage("You have destroyed player" + station.getOwner().id + "'s station");
+            UpdatePlayerBag();
             IsConfirm(ConfirmType.isConstruction); // 提示玩家是否占领
         }
-            
-        PlayerManager.Instance.EndTheTurn();//结束回合
-
+        else PlayerManager.Instance.EndTheTurn(); //结束回合
     }
     public void UpdatePlayerPanel() //更新所有玩家属性面板
     {
@@ -594,8 +605,11 @@ public class CanvasManager : MonoBehaviour
             BattleEvadeButton.interactable = true;  // 启用闪避按钮
             DefenderEquipButton.interactable = true;// 启用防御者使用装备按钮
             Player attacker = PlayerManager.Instance.currPlayer;
-            if (!attacker.BattleTargetIsPlayer) // 如果攻击的是空间站
-                Invoke("EndBattle", 2.5f); // 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
+            if (!attacker.BattleTargetIsPlayer)
+            {
+                AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
+                Invoke("EndBattle", 2.5f); // 如果攻击的是空间站, 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
+            }
 
         });
 
@@ -845,6 +859,7 @@ public class CanvasManager : MonoBehaviour
                 {
                     if (currentPlayer.setEnergy(-spaceShipList[idx].energyCost)) // 如果买得起
                     {
+                        updateSound.Play(); // 播放飞船替换音效
                         playerPanels[currentPlayer.id - 1].transform.GetChild(0).GetComponent<RawImage>().texture = spaceShip.GetComponent<RawImage>().texture;//更新图片
                         currentPlayer.GetNewSpaceShip(spaceShipList[idx].HP, spaceShipList[idx].ATK, spaceShipList[idx].DEF, spaceShipList[idx].EVD);
                         UpdatePlayerPanel(); // 更新玩家面板

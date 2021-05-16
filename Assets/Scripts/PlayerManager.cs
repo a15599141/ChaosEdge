@@ -8,7 +8,7 @@ public class PlayerManager : MonoBehaviour
 {
     public List<GameObject> playerObjects;//玩家对象集合
     public List<GameObject> spawnPoints;//出生点对象集合
-    public List<Station> stations;//保存空间站集合
+    public List<Station> stations = new List<Station>();//保存空间站集合
 
     public Dice dice;
     public bool moveAllowed;//判断当前玩家是否可以移动
@@ -41,7 +41,6 @@ public class PlayerManager : MonoBehaviour
     void Start()
     {
         //初始化空间站
-        stations =  new List<Station>();
         for (int i = 0; i < Route.Instacnce.routeNum; i++)
         {
             stations.Add(null);
