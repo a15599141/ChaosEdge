@@ -16,7 +16,7 @@
         def = 2;
         maxHp = 6;
         hp = 6;
-        energyPerTurn = 2;
+        energyPerTurn = 1;
     }
 
     public bool isOwner(Player tp)

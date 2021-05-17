@@ -196,19 +196,14 @@ public class CanvasManager : MonoBehaviour
                 break;
         }
     }
-
+    //确认建造
     public void ConstructConfirm()
     {
-        Player player = PlayerManager.Instance.currPlayer;
         //消费能量
-        if (player.setEnergy(-5))
+        if (PlayerManager.Instance.ConstructStation())
         {
-            Material ma = player.transform.GetChild(0).GetComponent<MeshRenderer>().material;// 获取玩家颜色
-            Route.Instacnce.childNodeList[player.routePosition].GetChild(0).GetComponent<MeshRenderer>().material = ma;//空间站变为玩家颜色
-            PlayerManager.Instance.stations[player.routePosition] = new Station(player);//添加入station集合
-            PlayerManager.Instance.stations[player.routePosition].setHPToMax(); //新占领的空间站补满血
-            PlayerManager.Instance.EndTheTurn(); //结束回合
             ConfirmExit();
+            PlayerManager.Instance.EndTheTurn();
         }
         else
         {
@@ -236,6 +231,12 @@ public class CanvasManager : MonoBehaviour
         BGM.Stop();
         battleBGM.Play(); //放战斗音乐
         canvasBattle.SetActive(true);//显示战斗面板
+
+        //如果当前玩家是AI
+        if (PlayerManager.Instance.currPlayer.isAI)
+        {
+            BattleAttackButtonListener();//直接启动战斗按钮
+        }
     }
     public void BattleCancel()
     {
@@ -277,6 +278,12 @@ public class CanvasManager : MonoBehaviour
     //打开维修界面
     public void OpenCanvasRepair()
     {
+        if (PlayerManager.Instance.currPlayer.isAI)
+        {
+            //如果玩家为ai自动开始修复
+            diceForRepair.RollDice();
+            DelayRepaire();
+        }
         canvasRepair.SetActive(true);
     }
     //关闭维修界面
@@ -298,6 +305,12 @@ public class CanvasManager : MonoBehaviour
             UpdatePlayerPanel();
             CloseCanvasRepaire();
             showMessage("your spaceship has repaired!"); // 维修成功弹窗提示
+
+            //如果当前玩家是AI
+            if (PlayerManager.Instance.currPlayer.isAI)
+            {
+                PlayerManager.Instance.dice.RollDiceOnClick();//自动开始投掷骰子
+            }
         }
         else //如果骰子点数小于等于3，维修失败
         {
@@ -311,7 +324,14 @@ public class CanvasManager : MonoBehaviour
     //打开遭遇敌方空间站界面
     public void OpenCanvasEnemyStation()
     {
-        canvasEnemyStation.SetActive(true);
+        if (PlayerManager.Instance.currPlayer.isAI)
+        {
+            BattleConfirm();
+        }
+        else
+        {
+            canvasEnemyStation.SetActive(true);
+        }
     }
 
     //关闭遭遇敌方空间站界面
@@ -323,13 +343,10 @@ public class CanvasManager : MonoBehaviour
     //敌方空间站补给
     public void EnemyStationSupply()
     {
-        Player player = PlayerManager.Instance.currPlayer;
-        if (player.setEnergy(-5))
+        if (PlayerManager.Instance.StationSupply())
         {
-            player.tarPlayer.setEnergy(5);
             CloseCanvasEnemyStation();
-            showMessage("paid 5 energy to "+player.tarPlayer.name);
-            PlayerManager.Instance.EndTheTurn();
+            showMessage("paid 5 energy");
         }
         else
         {
@@ -593,24 +610,7 @@ public class CanvasManager : MonoBehaviour
 
         BattleAttackButton.onClick.AddListener(() => // 攻击按钮添加监听事件
         {
-            diceForAttack.RollDice(); // 摇攻击骰子
-            BattleAttackButton.interactable = false; // 禁用攻击按钮
-            AttackerEquipButton.interactable = false; // 禁用使用装备按钮
-            for (int i = 0; i < equipmentBagMaxCapacity; i++) //禁用背包使用按钮
-            {
-                useEquipmentButtons[i].gameObject.SetActive(false);
-                cancelEquipButton.gameObject.SetActive(false);
-            }
-            BattleDefendButton.interactable = true; // 启用防御按钮
-            BattleEvadeButton.interactable = true;  // 启用闪避按钮
-            DefenderEquipButton.interactable = true;// 启用防御者使用装备按钮
-            Player attacker = PlayerManager.Instance.currPlayer;
-            if (!attacker.BattleTargetIsPlayer)
-            {
-                AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
-                Invoke("EndBattle", 2.5f); // 如果攻击的是空间站, 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
-            }
-
+            BattleAttackButtonListener();
         });
 
         AttackerEquipButton.onClick.AddListener(() => //攻击者使用装备按钮添加监听事件
@@ -686,19 +686,7 @@ public class CanvasManager : MonoBehaviour
             });
         });
 
-        BattleDefendButton.onClick.AddListener(() => // 防御按钮添加监听事件
-        {
-            diceForDefend.RollDice(); // 摇防御骰子
-            BattleDefendButton.interactable = false; // 禁用防御按钮
-            BattleEvadeButton.interactable = false; // 禁用闪避按钮
-            DefenderEquipButton.interactable = false; // 禁用防御按钮
-            for (int i = 0; i < equipmentBagMaxCapacity; i++) useEquipmentButtons[i].gameObject.SetActive(false);//隐藏背包使用按钮
-            cancelEquipButton.gameObject.SetActive(false);//隐藏‘取消使用’按钮
-            DefenderChooseDefend = true; //记录防御者选择防御
-            AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
-            DefenderIsEquiped = DefenderUsedEquipmentIdx < equipmentBagMaxCapacity; //记录防御者是否使用装备
-            Invoke("EndBattle", 2.5f); // 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
-        });
+        BattleDefendButton.onClick.AddListener(() => { BattleDefendButtonListener();});// 防御按钮添加监听事件
 
         BattleEvadeButton.onClick.AddListener(() => // 闪避按钮添加监听事件
         {
@@ -736,6 +724,48 @@ public class CanvasManager : MonoBehaviour
         });
 
     }
+
+    public void BattleAttackButtonListener()
+    {
+        diceForAttack.RollDice(); // 摇攻击骰子
+        BattleAttackButton.interactable = false; // 禁用攻击按钮
+        AttackerEquipButton.interactable = false; // 禁用使用装备按钮
+        for (int i = 0; i < equipmentBagMaxCapacity; i++) //禁用背包使用按钮
+        {
+            useEquipmentButtons[i].gameObject.SetActive(false);
+            cancelEquipButton.gameObject.SetActive(false);
+        }
+        BattleDefendButton.interactable = true; // 启用防御按钮
+        BattleEvadeButton.interactable = true;  // 启用闪避按钮
+        DefenderEquipButton.interactable = true;// 启用防御者使用装备按钮
+        Player attacker = PlayerManager.Instance.currPlayer;
+        if (!attacker.BattleTargetIsPlayer)
+        {
+            AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
+            Invoke("EndBattle", 2.5f); // 如果攻击的是空间站, 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
+        }
+
+        //如果玩家的目标玩家是AI自动调用防御
+        if (attacker.tarPlayer.isAI)
+        {
+            BattleDefendButtonListener();
+        }
+    }
+
+    public void BattleDefendButtonListener()
+    {
+        diceForDefend.RollDice(); // 摇防御骰子
+        BattleDefendButton.interactable = false; // 禁用防御按钮
+        BattleEvadeButton.interactable = false; // 禁用闪避按钮
+        DefenderEquipButton.interactable = false; // 禁用防御按钮
+        for (int i = 0; i < equipmentBagMaxCapacity; i++) useEquipmentButtons[i].gameObject.SetActive(false);//隐藏背包使用按钮
+        cancelEquipButton.gameObject.SetActive(false);//隐藏‘取消使用’按钮
+        DefenderChooseDefend = true; //记录防御者选择防御
+        AttackerIsEquiped = AttackerUsedEquipmentIdx < equipmentBagMaxCapacity; //记录攻击者是否使用装备
+        DefenderIsEquiped = DefenderUsedEquipmentIdx < equipmentBagMaxCapacity; //记录防御者是否使用装备
+        Invoke("EndBattle", 2.5f); // 等待2.5秒后进行战斗结算，保证骰子动画播放完毕
+    }
+
     public void TradeStationInitialize() // 商店初始化
     {
         //按图片顺序，添加Item到列表

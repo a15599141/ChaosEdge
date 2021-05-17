@@ -57,7 +57,13 @@ public class PlayerManager : MonoBehaviour
             currPlayer.transform.position = spawnPoints[i].transform.position;
             currPlayer.routePosition = spawnPoints[i].transform.GetSiblingIndex();
             currPlayer.id = i + 1;
+
+            //设置第一个玩家的为非AI 其他玩家为AI
+            currPlayer.isAI = i == 0 ? false : true;
         }
+
+
+
 
         //选中第一个作为当前玩家
         currPlayerIndex = 0;
@@ -71,6 +77,7 @@ public class PlayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //currPlayer.transform.rotation = Route.Instacnce.childNodeList[currPlayer.routePosition].rotation;
         if (moveAllowed)
         {
             moveAllowed = false;
@@ -90,6 +97,8 @@ public class PlayerManager : MonoBehaviour
             currPlayer.routePosition = (currPlayer.routePosition + 1) % Route.Instacnce.childNodeList.Count;
 
             Vector3 nextPos = Route.Instacnce.childNodeList[currPlayer.routePosition].position;
+
+
             //判断是否到达下一格
             while (MoveToNextNode(nextPos))
             {
@@ -111,24 +120,51 @@ public class PlayerManager : MonoBehaviour
         if (currPlayer.isOnTradeStation)
         {
             //处理玩家经过商店
-            CanvasManager.Instance.IsConfirm(ConfirmType.isTradeStation);//选择是否进入商店
+            if (currPlayer.isAI)//AI直接跳过商店
+            {
+                TradeCancel();
+            }
+            else
+            {
+                CanvasManager.Instance.IsConfirm(ConfirmType.isTradeStation);//选择是否进入商店
+            }
         }else if (currPlayer.isEngaging)
         {
             //处理玩家遭遇战斗
             currPlayer.BattleTargetIsPlayer = true;
-            CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
+            if (currPlayer.isAI)
+            {
+                BattleCancel();//AI跳过战斗
+            }
+            else
+            {
+                CanvasManager.Instance.IsConfirm(ConfirmType.isBattle);//选择是否战斗
+            }
         }else
         {
             //处理玩家完全停下之后与station的交互
             DealWithStation();
         }
     }
+    bool MoveToNextNode(Vector3 goal)
+    {
+        return goal != (currPlayer.transform.position = Vector3.MoveTowards(currPlayer.transform.position, goal, moveSpeed * Time.deltaTime));
+    }
 
+    //空间站交互部分
     public void DealWithStation()
     {
         if (stations[currPlayer.routePosition] == null)//未被占领则提示是否建造
         {
-            CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
+            if (currPlayer.isAI)
+            {
+                ConstructStation();
+                EndTheTurn(); //结束回合
+            }
+            else
+            {
+                CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
+            }
         }
         else if (stations[currPlayer.routePosition].isOwner(currPlayer))//如果是当前玩家的建筑则提示升级
         {
@@ -141,14 +177,23 @@ public class PlayerManager : MonoBehaviour
             //EndTheTurn();
             currPlayer.tarPlayer = stations[currPlayer.routePosition].getOwner();//设定当前玩家的目标玩家为空间站所有者
             currPlayer.BattleTargetIsPlayer = false;
-            CanvasManager.Instance.OpenCanvasEnemyStation();
+
+            if (currPlayer.isAI)
+            {
+                //默认补给，无法补给强行进行战斗
+                if (!StationSupply())
+                {
+                    CanvasManager.Instance.OpenCanvasEnemyStation();
+                }
+            }
+            else
+            {
+                CanvasManager.Instance.OpenCanvasEnemyStation();
+            }
         }
     }
 
-    bool MoveToNextNode(Vector3 goal)
-    {
-        return goal != (currPlayer.transform.position = Vector3.MoveTowards(currPlayer.transform.position, goal, moveSpeed * Time.deltaTime));
-    }
+    
 
     public void EndTheTurn()
     {
@@ -159,14 +204,15 @@ public class PlayerManager : MonoBehaviour
         //currPlayerIndex = 0;
         currPlayer = playerObjects[currPlayerIndex].GetComponent<Player>();//切换到下一个玩家
 
+
         if (currPlayerIndex == 0)//如果下一个玩家是第一个玩家
         {
             CanvasManager.Instance.roundCount++; //回合数 + 1
             CanvasManager.Instance.roundText.text = "ROUND " + CanvasManager.Instance.roundCount.ToString(); //更新回合数
-            //计算玩家获得能量根据拥有的空间站数量
+                                                                                                                //计算玩家获得能量根据拥有的空间站数量
             foreach (Station sta in stations)
             {
-                if (sta!=null)//跳过无人空间站
+                if (sta != null)//跳过无人空间站
                 {
                     sta.gainEnergy();
                 }
@@ -181,6 +227,45 @@ public class PlayerManager : MonoBehaviour
         if (currPlayer.getCurrHP() <= 0)
         {
             CanvasManager.Instance.OpenCanvasRepair();
+        }
+        else
+        {
+            //AI自动行走
+            if (currPlayer.isAI)
+            {
+                dice.RollDiceOnClick();
+            }
+        }
+    }
+
+    public bool ConstructStation()
+    {
+        if (currPlayer.setEnergy(-5))
+        {
+            Material ma = currPlayer.transform.GetChild(0).GetComponent<MeshRenderer>().material;// 获取玩家颜色
+            Route.Instacnce.childNodeList[currPlayer.routePosition].GetChild(0).GetComponent<MeshRenderer>().material = ma;//空间站变为玩家颜色
+            stations[currPlayer.routePosition] = new Station(currPlayer);//添加入station集合
+            stations[currPlayer.routePosition].setHPToMax(); //新占领的空间站补满血
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //遭遇敌方空间站补给
+    public bool StationSupply()
+    {
+        if (currPlayer.setEnergy(-5))
+        {
+            currPlayer.tarPlayer.setEnergy(5);
+            EndTheTurn();
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
