@@ -68,6 +68,13 @@ public class CanvasManager : MonoBehaviour
     //维修界面
     public GameObject canvasRepair;
 
+    //自己的空间站界面
+    public GameObject canvasMyStation;
+    public RawImage imageMyStation;
+    public Text textMyStationStatus;
+    public Button buttonMyStationUpgrade;
+    public Button buttonMyStationMainten;
+
     //商店UI及商品选择高光
     public RawImage itemHighlight;
     public RawImage equipmentHighlight;
@@ -147,7 +154,7 @@ public class CanvasManager : MonoBehaviour
     }
     IEnumerator delayMessage()
     {
-        yield return new WaitForSeconds(2.5f); //消息弹窗显示2.5秒
+        yield return new WaitForSeconds(2.0f); //消息弹窗显示2.5秒
         canvasMessage.SetActive(false);
     }
     public void IsConfirm(ConfirmType type)
@@ -235,7 +242,7 @@ public class CanvasManager : MonoBehaviour
         //如果当前玩家是AI
         if (PlayerManager.Instance.currPlayer.isAI)
         {
-            BattleAttackButtonListener();//直接启动战斗按钮
+            Invoke("BattleAttackButtonListener",1.0f);//1秒后直接启动战斗按钮
         }
     }
     public void BattleCancel()
@@ -273,6 +280,67 @@ public class CanvasManager : MonoBehaviour
         PlayerManager.Instance.currPlayer.isOnTradeStation = false;
         PlayerManager.Instance.EndTheTurn();
         canvasShop.SetActive(false);
+    }
+
+    //打开我的空间站界面
+    public void OpenCanvasMyStation()
+    {
+        canvasMyStation.SetActive(true);
+        Player player = PlayerManager.Instance.currPlayer;
+        Station station = PlayerManager.Instance.stations[player.routePosition];
+        switch (player.id)
+        {
+            case 1:
+                imageMyStation.texture = stationRedImages[station.level - 1].texture;
+                break;
+            case 2:
+                imageMyStation.texture = stationYellowImages[station.level - 1].texture;
+                break;
+            case 3:
+                imageMyStation.texture = stationBlueImages[station.level - 1].texture;
+                break;
+            case 4:
+                imageMyStation.texture = stationGreenImages[station.level - 1].texture;
+                break;
+        }
+        textMyStationStatus.text = "HP:" + station.getHP() + "/" + station.getMaxHP()
+                                + "\nDEF:" + station.getDEF();
+    }
+
+    //关闭我的空间站界面
+    public void CloseCanvasMyStation()
+    {
+        canvasMyStation.SetActive(false);
+    }
+
+    //空间站维修
+    public void MyStationMainten()
+    {
+        if (PlayerManager.Instance.MyStationMainten())
+        {
+            showMessage("Maintenance successful");
+            CloseCanvasMyStation();
+            PlayerManager.Instance.EndTheTurn();
+        }
+        else
+        {
+            showMessage("Upgrade failed, insufficient energy");
+        }
+    }
+
+    //空间站升级
+    public void MyStationUpgrade()
+    {
+        if (PlayerManager.Instance.MyStationMainten())
+        {
+            showMessage("Upgrade successful");
+            CloseCanvasMyStation();
+            PlayerManager.Instance.EndTheTurn();
+        }
+        else
+        {
+            showMessage("Upgrade failed, insufficient energy");
+        }
     }
 
     //打开维修界面
@@ -346,7 +414,6 @@ public class CanvasManager : MonoBehaviour
         if (PlayerManager.Instance.StationSupply())
         {
             CloseCanvasEnemyStation();
-            showMessage("paid 5 energy");
         }
         else
         {
@@ -564,6 +631,10 @@ public class CanvasManager : MonoBehaviour
     public void UpdateBattlePanel()//更新战斗界面
     {
         Player player = PlayerManager.Instance.currPlayer;
+
+        //禁用按钮当玩家是AI
+        BattleAttackButton.enabled = !player.isAI;
+
         //更新战斗界面中左边玩家的信息
         textBattlePlayer1Name.text ="Player " + player.id;
         textBattlePlayer1HP.text = player.getCurrHP() + " / " + player.getMaxHP();
@@ -724,7 +795,7 @@ public class CanvasManager : MonoBehaviour
         });
 
     }
-
+    //战斗时选择进攻的按钮监听器
     public void BattleAttackButtonListener()
     {
         diceForAttack.RollDice(); // 摇攻击骰子
@@ -752,6 +823,7 @@ public class CanvasManager : MonoBehaviour
         }
     }
 
+    //战斗时选择防御的按钮监听器
     public void BattleDefendButtonListener()
     {
         diceForDefend.RollDice(); // 摇防御骰子

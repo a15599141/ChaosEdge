@@ -15,7 +15,7 @@
         atk = 0;
         def = 2;
         maxHp = 6;
-        hp = 6;
+        hp = 1;
         energyPerTurn = 1;
     }
 

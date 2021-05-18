@@ -154,7 +154,8 @@ public class PlayerManager : MonoBehaviour
     //空间站交互部分
     public void DealWithStation()
     {
-        if (stations[currPlayer.routePosition] == null)//未被占领则提示是否建造
+        Station station = stations[currPlayer.routePosition];
+        if (station == null)//未被占领则提示是否建造
         {
             if (currPlayer.isAI)
             {
@@ -166,10 +167,17 @@ public class PlayerManager : MonoBehaviour
                 CanvasManager.Instance.IsConfirm(ConfirmType.isConstruction);
             }
         }
-        else if (stations[currPlayer.routePosition].isOwner(currPlayer))//如果是当前玩家的建筑则提示升级
+        else if (station.isOwner(currPlayer))//如果是当前玩家的建筑则提示升级
         {
-            Debug.Log("update");
-            EndTheTurn();
+            if (currPlayer.isAI) {//如果玩家是AI
+                if (!MyStationUpgrade())//如果玩家不能维修则选择维护
+                    if (!MyStationMainten())//如果玩家不能维护则选择跳过本轮
+                        EndTheTurn();//跳过本轮
+            }
+            else
+            {
+                CanvasManager.Instance.OpenCanvasMyStation();
+            }
         }
         else//如果不是当前玩家的建筑则提示战斗或过路费
         {
@@ -197,6 +205,11 @@ public class PlayerManager : MonoBehaviour
 
     public void EndTheTurn()
     {
+        Invoke("delayEndTurn", 2.0f);
+    }
+
+    public void delayEndTurn()
+    {
         //清除当前玩家的状态
         currPlayer.isEngaging = false;
         currPlayer.isOnTradeStation = false;
@@ -209,7 +222,7 @@ public class PlayerManager : MonoBehaviour
         {
             CanvasManager.Instance.roundCount++; //回合数 + 1
             CanvasManager.Instance.roundText.text = "ROUND " + CanvasManager.Instance.roundCount.ToString(); //更新回合数
-                                                                                                                //计算玩家获得能量根据拥有的空间站数量
+                                                                                                             //计算玩家获得能量根据拥有的空间站数量
             foreach (Station sta in stations)
             {
                 if (sta != null)//跳过无人空间站
@@ -260,6 +273,7 @@ public class PlayerManager : MonoBehaviour
         if (currPlayer.setEnergy(-5))
         {
             currPlayer.tarPlayer.setEnergy(5);
+            CanvasManager.Instance.showMessage(currPlayer.name + " paid 5 energy to "+currPlayer.tarPlayer.name);
             EndTheTurn();
             return true;
         }
@@ -291,5 +305,56 @@ public class PlayerManager : MonoBehaviour
             steps = tempSteps;
             StartCoroutine(PlayerMove());
         }
+    }
+
+    //空间站维修
+    public bool MyStationMainten()
+    {
+        Station station = stations[currPlayer.routePosition];
+        if (currPlayer.setEnergy(-5))
+        {
+            station.hp = station.maxHp;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //空间站升级
+    public bool MyStationUpgrade()
+    {
+        Station station = stations[currPlayer.routePosition];
+        bool res = false;
+        switch (station.level)
+        {
+            case 1:
+                if (currPlayer.setEnergy(-25))
+                {
+                    station.level += 1;
+                    station.hp = 12;
+                    station.maxHp = 12;
+                    res = true;
+                }
+                break;
+            case 2:
+                if (currPlayer.setEnergy(-30))
+                {
+                    station.level += 1;
+                    station.hp = 13;
+                    station.maxHp = 13;
+                }
+                break;
+            case 3:
+                if (currPlayer.setEnergy(-35))
+                { 
+                    station.level += 1;
+                    station.hp = 14;
+                    station.maxHp = 14;
+                }
+                break;
+        }
+        return res;
     }
 }
