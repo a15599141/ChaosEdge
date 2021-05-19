@@ -59,7 +59,10 @@ public class PlayerManager : MonoBehaviour
             currPlayer.id = i + 1;
 
             //设置第一个玩家的为非AI 其他玩家为AI
-            currPlayer.isAI = i == 0 ? false : true;
+            //currPlayer.isAI = i == 0 ? false : true;
+
+            //关闭AI
+            currPlayer.isAI = false;
         }
 
 
@@ -356,5 +359,21 @@ public class PlayerManager : MonoBehaviour
                 break;
         }
         return res;
+    }
+
+    public void EnableAI()
+    {
+        playerObjects[0].GetComponent<Player>().isAI =false;
+        playerObjects[1].GetComponent<Player>().isAI = true;
+        playerObjects[2].GetComponent<Player>().isAI = true;
+        playerObjects[3].GetComponent<Player>().isAI = true;
+
+    }
+    public void DisableAI()
+    {
+        playerObjects[0].GetComponent<Player>().isAI = false;
+        playerObjects[1].GetComponent<Player>().isAI = false;
+        playerObjects[2].GetComponent<Player>().isAI = false;
+        playerObjects[3].GetComponent<Player>().isAI = false;
     }
 }

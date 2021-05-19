@@ -133,7 +133,7 @@ public class Player : MonoBehaviour
         damage = (atk + diceNum1) - (sta.def + diceNum2);
         damage = damage <= 0 ? 1 : damage;
         sta.setHP(damage);
-        currHP -= 2;//固定战损
+        currHP -= 1;//固定战损
         return name + " -2\n" + tarPlayer.name + "'s Station -" + damage;
     }
     // 玩家战斗（方法重载）
@@ -145,7 +145,7 @@ public class Player : MonoBehaviour
             damage = (atk + diceNum1 + e1.ATK) - (tarPlayer.def + diceNum2 + e2.DEF);//计算战斗伤害
             damage = damage <= 0 ? 1 : damage;//如果造成的伤害小于1，则固定1点伤害
             tarPlayer.currHP -= damage;//对目标玩家造成伤害
-            currHP -= 2;//固定战损
+            currHP -= 1;//固定战损
             CanvasManager.Instance.getDamageSound.Play();
             return name+" -2\n"+tarPlayer.name + " -" + damage;
         }
@@ -158,7 +158,7 @@ public class Player : MonoBehaviour
             {
                 damage = atk + diceNum1 + e1.ATK; // 如果闪避失败，则伤害拉满
                 tarPlayer.currHP -= damage;//对目标玩家造成伤害
-                currHP -= 2;//固定战损
+                currHP -= 1;//固定战损
                 CanvasManager.Instance.getDamageSound.Play();
                 return name + " -2\n" + tarPlayer.name + " -" + damage;
             }
