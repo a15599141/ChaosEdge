@@ -208,7 +208,7 @@ public class PlayerManager : MonoBehaviour
 
     public void EndTheTurn()
     {
-        Invoke("delayEndTurn", 2.0f);
+        Invoke("delayEndTurn", 1.0f);
     }
 
     public void delayEndTurn()

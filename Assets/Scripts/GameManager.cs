@@ -8,19 +8,44 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public Slider BGMSlider, SoundEffectSlider;
+    //public AudioSource HomeBGM;
+    public Button AIDisableButton;
+    public Button TestingPanelDisableButton;
+
 
     // Start is called before the first frame update
     void Start()
     {
-
+        AIDisableButton.interactable = false;
+        TestingPanelDisableButton.interactable = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        SoundControl();
 
     }
 
+    public void SoundControl()
+    {
+        //HomeBGM.volume = BGMSlider.value;
+        CanvasManager.Instance.BGM.volume = BGMSlider.value;
+        CanvasManager.Instance.battleBGM.volume = BGMSlider.value;
+
+        CanvasManager.Instance.attackSound.volume = SoundEffectSlider.value;
+        CanvasManager.Instance.defendSound.volume = SoundEffectSlider.value;
+        CanvasManager.Instance.evadeSound.volume = SoundEffectSlider.value;
+        CanvasManager.Instance.getDamageSound.volume = SoundEffectSlider.value;
+        CanvasManager.Instance.repairSound.volume = SoundEffectSlider.value;
+        CanvasManager.Instance.errorSound.volume = SoundEffectSlider.value;
+        CanvasManager.Instance.updateSound.volume = SoundEffectSlider.value;
+    }
+    public void LoadMainScene()
+    {
+        SceneManager.LoadScene("MainScene");
+    }
     /* --------- 联机向 ----------- */
     // 退出游戏，返回主界面
     public void Exit() 
